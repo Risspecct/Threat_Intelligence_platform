@@ -1,0 +1,83 @@
+# =========================
+# Java / Maven
+# =========================
+target/
+*.class
+*.jar
+*.war
+*.ear
+
+# Maven
+.mvn/timing.properties
+
+# =========================
+# IntelliJ IDEA
+# =========================
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# =========================
+# VS Code
+# =========================
+.vscode/
+
+# =========================
+# Eclipse
+# =========================
+.classpath
+.project
+.settings/
+
+# =========================
+# OS generated files
+# =========================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# =========================
+# Environment / Secrets
+# =========================
+.env
+.env.*
+!.env.example
+
+# Spring local configuration
+application-local.properties
+application-local.yml
+
+# =========================
+# Logs
+# =========================
+*.log
+logs/
+
+# =========================
+# Test / Coverage
+# =========================
+.coverage
+*.exec
+jacoco.exec
+
+# =========================
+# Temporary files
+# =========================
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# =========================
+# Project data
+# =========================
+# Ignore raw/local datasets and generated files
+data/raw/
+data/processed/
+data/generated/
+
+# Keep directory structure if needed
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/generated/.gitkeep
