@@ -5,6 +5,7 @@ import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +29,27 @@ public class ThreatGraphService {
                 .all()
                 .stream()
                 .map(row -> (String) row.get("address"))
+                .toList();
+    }
+
+    public List<Map<String, Object>> findMultiHoneypotSources() {
+
+        String query = """
+            MATCH (ip:SourceIP)-[:CREATED]->(s:Session)-[:TARGETED]->(h:Honeypot)
+            WITH ip, count(DISTINCT h) AS honeypotCount
+            WHERE honeypotCount > 1
+            RETURN ip.address AS sourceIp, honeypotCount
+            ORDER BY honeypotCount DESC
+            """;
+
+        return neo4jClient.query(query)
+                .fetch()
+                .all()
+                .stream()
+                .map(row -> Map.of(
+                        "sourceIp", row.get("sourceIp"),
+                        "honeypotCount", row.get("honeypotCount")
+                ))
                 .toList();
     }
 }

@@ -6,6 +6,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import users.rishik.threatPlatform.attack.service.ThreatGraphService;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -27,5 +28,17 @@ class ThreatGraphServiceTest {
         assertFalse(honeypots.isEmpty());
 
         System.out.println("Honeypots: " + honeypots);
+    }
+
+    @Test
+    void shouldFindSourcesThatContactedMultipleHoneypots() {
+
+        List<Map<String, Object>> results =
+                threatGraphService.findMultiHoneypotSources();
+
+        assertNotNull(results);
+        assertFalse(results.isEmpty());
+
+        results.forEach(System.out::println);
     }
 }
