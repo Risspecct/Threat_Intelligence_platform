@@ -52,4 +52,32 @@ public class ThreatGraphService {
                 ))
                 .toList();
     }
+
+    public List<Map<String, Object>> findSessionsBySourceIp(String sourceIp) {
+
+        String query = """
+            MATCH (ip:SourceIP {address: $sourceIp})
+                  -[:CREATED]->(s:Session)
+                  -[:TARGETED]->(h:Honeypot)
+            RETURN
+                s.sessionId AS sessionId,
+                s.firstSeen AS firstSeen,
+                s.lastSeen AS lastSeen,
+                h.address AS honeypot
+            ORDER BY s.firstSeen
+            """;
+
+        return neo4jClient.query(query)
+                .bind(sourceIp).to("sourceIp")
+                .fetch()
+                .all()
+                .stream()
+                .map(row -> Map.of(
+                        "sessionId", row.get("sessionId"),
+                        "firstSeen", row.get("firstSeen"),
+                        "lastSeen", row.get("lastSeen"),
+                        "honeypot", row.get("honeypot")
+                ))
+                .toList();
+    }
 }

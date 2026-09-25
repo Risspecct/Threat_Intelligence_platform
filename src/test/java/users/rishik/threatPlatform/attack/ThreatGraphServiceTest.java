@@ -41,4 +41,23 @@ class ThreatGraphServiceTest {
 
         results.forEach(System.out::println);
     }
+
+    @Test
+    void shouldReturnSourceSessionsChronologically() {
+
+        List<Map<String, Object>> sources =
+                threatGraphService.findMultiHoneypotSources();
+
+        assertFalse(sources.isEmpty());
+
+        String sourceIp =
+                (String) sources.get(0).get("sourceIp");
+
+        List<Map<String, Object>> sessions =
+                threatGraphService.findSessionsBySourceIp(sourceIp);
+
+        assertFalse(sessions.isEmpty());
+
+        sessions.forEach(System.out::println);
+    }
 }
