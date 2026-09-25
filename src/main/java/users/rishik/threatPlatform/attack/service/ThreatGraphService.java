@@ -3,6 +3,8 @@ package users.rishik.threatPlatform.attack.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.stereotype.Service;
+import users.rishik.threatPlatform.attack.dto.MultiHoneypotSource;
+import users.rishik.threatPlatform.attack.dto.SourceSession;
 
 import java.util.List;
 import java.util.Map;
@@ -32,7 +34,7 @@ public class ThreatGraphService {
                 .toList();
     }
 
-    public List<Map<String, Object>> findMultiHoneypotSources() {
+    public List<MultiHoneypotSource> findMultiHoneypotSources() {
 
         String query = """
             MATCH (ip:SourceIP)-[:CREATED]->(s:Session)-[:TARGETED]->(h:Honeypot)
@@ -46,14 +48,14 @@ public class ThreatGraphService {
                 .fetch()
                 .all()
                 .stream()
-                .map(row -> Map.of(
-                        "sourceIp", row.get("sourceIp"),
-                        "honeypotCount", row.get("honeypotCount")
+                .map(row -> new MultiHoneypotSource(
+                        (String) row.get("sourceIp"),
+                        ((Number) row.get("honeypotCount")).longValue()
                 ))
                 .toList();
     }
 
-    public List<Map<String, Object>> findSessionsBySourceIp(String sourceIp) {
+    public List<SourceSession> findSessionsBySourceIp(String sourceIp) {
 
         String query = """
             MATCH (ip:SourceIP {address: $sourceIp})
@@ -72,11 +74,11 @@ public class ThreatGraphService {
                 .fetch()
                 .all()
                 .stream()
-                .map(row -> Map.of(
-                        "sessionId", row.get("sessionId"),
-                        "firstSeen", row.get("firstSeen"),
-                        "lastSeen", row.get("lastSeen"),
-                        "honeypot", row.get("honeypot")
+                .map(row -> new SourceSession(
+                        (String) row.get("sessionId"),
+                        (String) row.get("firstSeen"),
+                        (String) row.get("lastSeen"),
+                        (String) row.get("honeypot")
                 ))
                 .toList();
     }
