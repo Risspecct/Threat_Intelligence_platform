@@ -9,5 +9,4 @@ public class ThreatPlatformApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(ThreatPlatformApplication.class, args);
 	}
-
 }
