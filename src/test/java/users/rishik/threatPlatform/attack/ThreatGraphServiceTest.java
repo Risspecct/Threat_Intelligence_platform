@@ -1,0 +1,31 @@
+package users.rishik.threatPlatform.attack;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import users.rishik.threatPlatform.attack.service.ThreatGraphService;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+@SpringBootTest
+class ThreatGraphServiceTest {
+
+    @Autowired
+    private ThreatGraphService threatGraphService;
+
+    @Test
+    void shouldFindHoneypotsForSourceIp() {
+
+        String sourceIp = "431ef81b";
+
+        List<String> honeypots =
+                threatGraphService.findHoneypotsBySourceIp(sourceIp);
+
+        assertNotNull(honeypots);
+        assertFalse(honeypots.isEmpty());
+
+        System.out.println("Honeypots: " + honeypots);
+    }
+}
