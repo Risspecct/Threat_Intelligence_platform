@@ -3,10 +3,11 @@ package users.rishik.threatPlatform.attack;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import users.rishik.threatPlatform.attack.dto.MultiHoneypotSource;
+import users.rishik.threatPlatform.attack.dto.SourceSession;
 import users.rishik.threatPlatform.attack.service.ThreatGraphService;
 
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -33,7 +34,7 @@ class ThreatGraphServiceTest {
     @Test
     void shouldFindSourcesThatContactedMultipleHoneypots() {
 
-        List<Map<String, Object>> results =
+        List<MultiHoneypotSource> results =
                 threatGraphService.findMultiHoneypotSources();
 
         assertNotNull(results);
@@ -45,15 +46,15 @@ class ThreatGraphServiceTest {
     @Test
     void shouldReturnSourceSessionsChronologically() {
 
-        List<Map<String, Object>> sources =
+        List<MultiHoneypotSource> sources =
                 threatGraphService.findMultiHoneypotSources();
 
         assertFalse(sources.isEmpty());
 
         String sourceIp =
-                (String) sources.get(0).get("sourceIp");
+                (String) sources.getFirst().getSourceIp();
 
-        List<Map<String, Object>> sessions =
+        List<SourceSession> sessions =
                 threatGraphService.findSessionsBySourceIp(sourceIp);
 
         assertFalse(sessions.isEmpty());
