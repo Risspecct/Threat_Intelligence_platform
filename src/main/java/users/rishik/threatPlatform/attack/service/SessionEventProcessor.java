@@ -9,7 +9,10 @@ import java.util.function.Consumer;
 
 public class SessionEventProcessor {
 
-    private final Map<String, SessionAccumulator> sessions =
+    private static final String SESSION_CLOSED =
+            "cowrie.session.closed";
+
+    private final Map<String, SessionAccumulator> activeSessions =
             new HashMap<>();
 
     private final SessionBehaviorExtractor extractor;
@@ -18,29 +21,61 @@ public class SessionEventProcessor {
         this.extractor = extractor;
     }
 
-    public void accept(RawCowrieEvent event) {
+    public void accept(
+            RawCowrieEvent event,
+            Consumer<SessionBehavior> consumer
+    ) {
 
         if (event.session() == null || event.session().isBlank()) {
             return;
         }
 
-        sessions.computeIfAbsent(
-                        event.session(),
+        String sessionId = event.session();
+
+        SessionAccumulator accumulator =
+                activeSessions.computeIfAbsent(
+                        sessionId,
                         ignored -> new SessionAccumulator()
-                )
-                .add(event);
+                );
+
+        accumulator.add(event);
+
+        if (SESSION_CLOSED.equals(event.eventid())) {
+            finishSession(sessionId, consumer);
+        }
     }
 
-    public void finish(Consumer<SessionBehavior> consumer) {
+    public void finishRemaining(
+            Consumer<SessionBehavior> consumer
+    ) {
 
-        for (SessionAccumulator accumulator : sessions.values()) {
-            consumer.accept(accumulator.build(extractor));
+        for (Map.Entry<String, SessionAccumulator> entry
+                : activeSessions.entrySet()) {
+
+            consumer.accept(
+                    entry.getValue().build(extractor)
+            );
         }
 
-        sessions.clear();
+        activeSessions.clear();
     }
 
-    public int sessionCount() {
-        return sessions.size();
+    public int activeSessionCount() {
+        return activeSessions.size();
+    }
+
+    private void finishSession(
+            String sessionId,
+            Consumer<SessionBehavior> consumer
+    ) {
+
+        SessionAccumulator accumulator =
+                activeSessions.remove(sessionId);
+
+        if (accumulator != null) {
+            consumer.accept(
+                    accumulator.build(extractor)
+            );
+        }
     }
 }

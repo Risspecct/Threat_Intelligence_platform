@@ -14,78 +14,166 @@ import static org.junit.jupiter.api.Assertions.*;
 class SessionEventProcessorTest {
 
     @Test
-    void shouldGroupInterleavedEventsBySession() {
+    void shouldFinalizeSessionWhenClosedEventArrives() {
 
         SessionEventProcessor processor =
                 new SessionEventProcessor(
                         new SessionBehaviorExtractor()
                 );
 
-        // Session A - login
-        processor.accept(event(
-                "2025-06-27 23:09:31.000000",
-                "session-A",
-                "cowrie.login.success",
-                null
-        ));
+        List<SessionBehavior> completed =
+                new ArrayList<>();
 
-        // Session B - login
-        processor.accept(event(
-                "2025-06-27 23:09:32.000000",
-                "session-B",
-                "cowrie.login.failed",
-                null
-        ));
+        processor.accept(
+                event(
+                        "2025-06-27 23:09:31.000000",
+                        "session-A",
+                        "cowrie.login.success",
+                        null
+                ),
+                completed::add
+        );
 
-        // Session A - command
-        processor.accept(event(
-                "2025-06-27 23:09:33.000000",
-                "session-A",
-                "cowrie.command.input",
-                "whoami"
-        ));
+        assertEquals(1, processor.activeSessionCount());
+        assertEquals(0, completed.size());
 
-        // Session B - command
-        processor.accept(event(
-                "2025-06-27 23:09:34.000000",
-                "session-B",
-                "cowrie.command.input",
-                "uname -a"
-        ));
+        processor.accept(
+                event(
+                        "2025-06-27 23:09:33.000000",
+                        "session-A",
+                        "cowrie.command.input",
+                        "whoami"
+                ),
+                completed::add
+        );
 
-        assertEquals(2, processor.sessionCount());
+        assertEquals(1, processor.activeSessionCount());
+        assertEquals(0, completed.size());
 
-        List<SessionBehavior> behaviors = new ArrayList<>();
+        processor.accept(
+                event(
+                        "2025-06-27 23:09:35.000000",
+                        "session-A",
+                        "cowrie.session.closed",
+                        null
+                ),
+                completed::add
+        );
 
-        processor.finish(behaviors::add);
+        assertEquals(0, processor.activeSessionCount());
+        assertEquals(1, completed.size());
 
-        assertEquals(2, behaviors.size());
+        SessionBehavior behavior = completed.getFirst();
 
-        SessionBehavior sessionA = behaviors.stream()
-                .filter(b -> b.sessionId().equals("session-A"))
-                .findFirst()
-                .orElseThrow();
-
-        SessionBehavior sessionB = behaviors.stream()
-                .filter(b -> b.sessionId().equals("session-B"))
-                .findFirst()
-                .orElseThrow();
-
-        assertTrue(sessionA.loginSuccess());
-        assertFalse(sessionA.loginFailure());
-
-        assertFalse(sessionB.loginSuccess());
-        assertTrue(sessionB.loginFailure());
+        assertEquals("session-A", behavior.sessionId());
+        assertTrue(behavior.loginSuccess());
 
         assertEquals(
                 List.of("whoami"),
-                sessionA.commandSequence()
+                behavior.commandSequence()
+        );
+    }
+
+    @Test
+    void shouldFinalizeSessionsWithoutClosedEventAtEnd() {
+
+        SessionEventProcessor processor =
+                new SessionEventProcessor(
+                        new SessionBehaviorExtractor()
+                );
+
+        List<SessionBehavior> completed =
+                new ArrayList<>();
+
+        processor.accept(
+                event(
+                        "2025-06-27 23:09:31.000000",
+                        "session-A",
+                        "cowrie.login.success",
+                        null
+                ),
+                completed::add
         );
 
+        assertEquals(1, processor.activeSessionCount());
+        assertEquals(0, completed.size());
+
+        processor.finishRemaining(completed::add);
+
+        assertEquals(0, processor.activeSessionCount());
+        assertEquals(1, completed.size());
+
         assertEquals(
-                List.of("uname -a"),
-                sessionB.commandSequence()
+                "session-A",
+                completed.getFirst().sessionId()
         );
+    }
+
+    @Test
+    void shouldHandleInterleavedSessions() {
+
+        SessionEventProcessor processor =
+                new SessionEventProcessor(
+                        new SessionBehaviorExtractor()
+                );
+
+        List<SessionBehavior> completed =
+                new ArrayList<>();
+
+        // A
+        processor.accept(
+                event(
+                        "2025-06-27 23:09:31.000000",
+                        "session-A",
+                        "cowrie.login.success",
+                        null
+                ),
+                completed::add
+        );
+
+        // B
+        processor.accept(
+                event(
+                        "2025-06-27 23:09:32.000000",
+                        "session-B",
+                        "cowrie.login.failed",
+                        null
+                ),
+                completed::add
+        );
+
+        // A closes
+        processor.accept(
+                event(
+                        "2025-06-27 23:09:33.000000",
+                        "session-A",
+                        "cowrie.session.closed",
+                        null
+                ),
+                completed::add
+        );
+
+        assertEquals(1, processor.activeSessionCount());
+        assertEquals(1, completed.size());
+
+        assertEquals(
+                "session-A",
+                completed.getFirst().sessionId()
+        );
+
+        // B closes
+        processor.accept(
+                event(
+                        "2025-06-27 23:09:34.000000",
+                        "session-B",
+                        "cowrie.session.closed",
+                        null
+                ),
+                completed::add
+        );
+
+        assertEquals(0, processor.activeSessionCount());
+        assertEquals(2, completed.size());
     }
 
     private RawCowrieEvent event(
@@ -96,29 +184,29 @@ class SessionEventProcessorTest {
     ) {
         return new RawCowrieEvent(
                 timestamp,
-                null,              // srcPort
-                null,              // dstIp
-                null,              // dstPort
+                null,
+                null,
+                null,
                 eventId,
                 session,
                 "sensor-1",
                 1,
-                null,              // username
-                null,              // password
+                null,
+                null,
                 input,
-                null,              // message
-                null,              // url
-                null,              // protocol
-                null,              // hassh
-                null,              // hasshAlgorithms
-                null,              // fingerprint
-                null,              // filename
-                null,              // destfile
-                null,              // outfile
-                null,              // shasum
-                null,              // size
-                null,              // duration
-                null,              // version
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
                 "source-1",
                 "honeypot-1"
         );
