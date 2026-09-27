@@ -15,6 +15,7 @@ import java.util.stream.Stream;
 public class SessionFileReader {
 
     private static final int BATCH_SIZE = 500;
+    int batchNumber =  0;
 
     private final SessionIngestionService ingestionService;
 
@@ -36,13 +37,12 @@ public class SessionFileReader {
 
                 if (batch.size() == BATCH_SIZE) {
                     ingestionService.ingestBatchBulk(batch);
-                    batch.clear();
-                }
-
-                if (processed % 500 == 0) {
+                    batchNumber++;
                     System.out.println(
-                            "Records processed: " + processed
+                            "Batch imported: " + batchNumber +
+                                    " | Records processed: " + processed
                     );
+                    batch.clear();
                 }
             }
         }
@@ -50,6 +50,10 @@ public class SessionFileReader {
         // Process remaining records
         if (!batch.isEmpty()) {
             ingestionService.ingestBatchBulk(batch);
+            batchNumber++;
+            System.out.println(
+                    "Batch imported: " + batchNumber + " | Records processed: " + processed
+            );
         }
 
         return processed;
