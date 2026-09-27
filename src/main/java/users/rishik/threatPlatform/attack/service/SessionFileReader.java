@@ -35,7 +35,7 @@ public class SessionFileReader {
                 processed++;
 
                 if (batch.size() == BATCH_SIZE) {
-                    ingestionService.ingestBatch(batch);
+                    ingestionService.ingestBatchBulk(batch);
                     batch.clear();
                 }
 
@@ -49,7 +49,7 @@ public class SessionFileReader {
 
         // Process remaining records
         if (!batch.isEmpty()) {
-            ingestionService.ingestBatch(batch);
+            ingestionService.ingestBatchBulk(batch);
         }
 
         return processed;
