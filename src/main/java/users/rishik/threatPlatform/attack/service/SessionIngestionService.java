@@ -9,6 +9,8 @@ import users.rishik.threatPlatform.attack.model.Session;
 import users.rishik.threatPlatform.attack.repository.SessionRepository;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -27,5 +29,23 @@ public class SessionIngestionService {
                 sessionMapper.toEntity(record);
 
         return sessionRepository.save(session);
+    }
+
+    public void ingestBatch(List<String> jsonLines) throws IOException {
+
+        List<Session> sessions = new ArrayList<>(jsonLines.size());
+
+        for (String jsonLine : jsonLines) {
+
+            SessionRecord record =
+                    objectMapper.readValue(jsonLine, SessionRecord.class);
+
+            Session session =
+                    sessionMapper.toEntity(record);
+
+            sessions.add(session);
+        }
+
+        sessionRepository.saveAll(sessions);
     }
 }
