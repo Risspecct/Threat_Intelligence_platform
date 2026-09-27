@@ -6,6 +6,12 @@ import users.rishik.threatPlatform.attack.dto.SessionBehavior;
 import users.rishik.threatPlatform.attack.service.RawCowrieEventReader;
 import users.rishik.threatPlatform.attack.service.SessionBehaviorExtractor;
 import users.rishik.threatPlatform.attack.service.SessionEventProcessor;
+import users.rishik.threatPlatform.similarity.calculator.ExactMatchSimilarityCalculator;
+import users.rishik.threatPlatform.similarity.calculator.LoginBehaviorSimilarityCalculator;
+import users.rishik.threatPlatform.similarity.calculator.SequenceSimilarityCalculator;
+import users.rishik.threatPlatform.similarity.calculator.SetSimilarityCalculator;
+import users.rishik.threatPlatform.similarity.model.SimilarityResult;
+import users.rishik.threatPlatform.similarity.service.SessionSimilarityService;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -44,6 +50,14 @@ class RawCowriePipelineTest {
                             new SessionBehaviorExtractor()
                     );
 
+            SessionSimilarityService similarityService =
+                    new SessionSimilarityService(
+                            new SequenceSimilarityCalculator(),
+                            new SetSimilarityCalculator(),
+                            new ExactMatchSimilarityCalculator(),
+                            new LoginBehaviorSimilarityCalculator()
+                    );
+
             List<SessionBehavior> behaviors =
                     new ArrayList<>();
 
@@ -56,6 +70,10 @@ class RawCowriePipelineTest {
             );
 
             processor.finishRemaining(behaviors::add);
+
+            // ---------------------------------------------------------
+            // Verify raw pipeline
+            // ---------------------------------------------------------
 
             assertEquals(2, behaviors.size());
 
@@ -70,17 +88,116 @@ class RawCowriePipelineTest {
                     .orElseThrow();
 
             assertTrue(sessionA.loginSuccess());
+
             assertEquals(
                     List.of("whoami"),
                     sessionA.commandSequence()
             );
 
             assertTrue(sessionB.loginFailure());
+
             assertEquals(
                     List.of("uname -a"),
                     sessionB.commandSequence()
             );
 
+            // ---------------------------------------------------------
+            // Verify similarity pipeline
+            // ---------------------------------------------------------
+
+            SimilarityResult result =
+                    similarityService.compare(
+                            sessionA,
+                            sessionB
+                    );
+
+            // Command sequences:
+            // [whoami]
+            // [uname -a]
+            //
+            // LCS = 0
+            // similarity = 0 / 1 = 0
+            assertEquals(
+                    0.0,
+                    result.getCommandSimilarity()
+            );
+
+            // Event sequences:
+            //
+            // session-A:
+            // [login.success, command.input, session.closed]
+            //
+            // session-B:
+            // [login.failed, command.input, session.closed]
+            //
+            // LCS = [command.input, session.closed] = 2
+            // max length = 3
+            // similarity = 2 / 3
+            assertEquals(
+                    2.0 / 3.0,
+                    result.getEventSimilarity()
+            );
+
+            // No file hashes were supplied.
+            // Empty set vs empty set = 1.0
+            assertEquals(
+                    1.0,
+                    result.getFileHashSimilarity()
+            );
+
+            // No HASSH values were supplied.
+            // null vs null = 0.0 according to ExactMatchSimilarityCalculator.
+            assertEquals(
+                    0.0,
+                    result.getHasshSimilarity()
+            );
+
+            // No client versions were supplied.
+            assertEquals(
+                    0.0,
+                    result.getClientVersionSimilarity()
+            );
+
+            // No download URLs were supplied.
+            // Empty set vs empty set = 1.0
+            assertEquals(
+                    1.0,
+                    result.getDownloadUrlSimilarity()
+            );
+
+            // No destination IPs were supplied.
+            assertEquals(
+                    1.0,
+                    result.getDestinationIpSimilarity()
+            );
+
+            // No destination ports were supplied.
+            assertEquals(
+                    1.0,
+                    result.getDestinationPortSimilarity()
+            );
+
+            // session-A:
+            // success = true, failure = false
+            //
+            // session-B:
+            // success = false, failure = true
+            //
+            // Completely different login behavior = 0.0
+            assertEquals(
+                    0.0,
+                    result.getLoginBehaviorSimilarity()
+            );
+
+            // First events:
+            // session-A = 23:09:31
+            // session-B = 23:09:32
+            //
+            // Difference = 1 second
+            assertEquals(
+                    1,
+                    result.getTemporalDistanceSeconds()
+            );
         } finally {
             Files.deleteIfExists(file);
         }
