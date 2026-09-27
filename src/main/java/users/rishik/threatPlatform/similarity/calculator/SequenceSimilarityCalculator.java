@@ -1,4 +1,4 @@
-package users.rishik.threatPlatform.similarity.calculators;
+package users.rishik.threatPlatform.similarity.calculator;
 
 import org.springframework.stereotype.Component;
 import java.util.List;

@@ -2,10 +2,10 @@ package users.rishik.threatPlatform.similarity;
 
 import org.junit.jupiter.api.Test;
 import users.rishik.threatPlatform.attack.dto.SessionBehavior;
-import users.rishik.threatPlatform.similarity.calculators.ExactMatchSimilarityCalculator;
-import users.rishik.threatPlatform.similarity.calculators.LoginBehaviorSimilarityCalculator;
-import users.rishik.threatPlatform.similarity.calculators.SequenceSimilarityCalculator;
-import users.rishik.threatPlatform.similarity.calculators.SetSimilarityCalculator;
+import users.rishik.threatPlatform.similarity.calculator.ExactMatchSimilarityCalculator;
+import users.rishik.threatPlatform.similarity.calculator.LoginBehaviorSimilarityCalculator;
+import users.rishik.threatPlatform.similarity.calculator.SequenceSimilarityCalculator;
+import users.rishik.threatPlatform.similarity.calculator.SetSimilarityCalculator;
 
 import java.util.List;
 import java.util.Set;
