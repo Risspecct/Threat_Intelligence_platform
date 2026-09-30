@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import users.rishik.threatPlatform.attack.analysis.*;
 import users.rishik.threatPlatform.attack.service.RawCowrieEventReader;
 import users.rishik.threatPlatform.attack.service.SessionBehaviorExtractor;
+import users.rishik.threatPlatform.attack.service.SessionEventProcessor;
 import users.rishik.threatPlatform.attack.service.SessionFileReader;
 import users.rishik.threatPlatform.similarity.service.SessionSimilarityService;
 
@@ -14,6 +15,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -47,6 +50,11 @@ public class DatasetImportRunner implements ApplicationRunner {
 
         if (args.containsOption("candidate-similarity-analysis")) {
             runCandidateSimilarityAnalysis(args);
+            return;
+        }
+
+        if (args.containsOption("candidate-similarity-distribution-analysis")) {
+            runCandidateSimilarityDistributionAnalysis(args);
             return;
         }
 
@@ -722,5 +730,84 @@ public class DatasetImportRunner implements ApplicationRunner {
         );
 
         System.out.println("========================================");
+    }
+
+    private void runCandidateSimilarityDistributionAnalysis(
+            ApplicationArguments args
+    ) throws Exception {
+
+        Path path = getDatasetPath(
+                args,
+                "Candidate similarity distribution analysis requires --file=<path>"
+        );
+
+        System.out.println();
+        System.out.println("========================================");
+        System.out.println(" Candidate Similarity Distribution Analysis");
+        System.out.println("========================================");
+        System.out.println("Input: " + path);
+
+        long start = System.currentTimeMillis();
+        List<users.rishik.threatPlatform.attack.dto.SessionBehavior> sessions =
+                loadSessionBehaviors(path);
+        CandidatePairGenerationResult candidatePairs = new CandidatePairGenerator(
+                CandidateGenerationRules.defaults()).generate(sessions);
+        CandidateSimilarityDistributionReport report =
+                new CandidateSimilarityDistributionAnalyzer(sessionSimilarityService)
+                        .analyze(sessions, candidatePairs);
+        long elapsed = System.currentTimeMillis() - start;
+
+        System.out.println();
+        System.out.println("Sessions analyzed: " + sessions.size());
+        System.out.println("Total unique candidate pairs: " + report.candidatePairs());
+        System.out.println();
+        report.distributions().forEach(this::printCandidateSimilarityDistribution);
+        System.out.printf("Total runtime: %.2f seconds%n", elapsed / 1000.0);
+        System.out.println("========================================");
+    }
+
+    private List<users.rishik.threatPlatform.attack.dto.SessionBehavior> loadSessionBehaviors(
+            Path path
+    ) throws Exception {
+        List<users.rishik.threatPlatform.attack.dto.SessionBehavior> sessions =
+                new ArrayList<>();
+        SessionBehaviorExtractor extractor = new SessionBehaviorExtractor();
+        SessionEventProcessor processor = new SessionEventProcessor(extractor);
+        new RawCowrieEventReader(new ObjectMapper()).read(path,
+                event -> processor.accept(event, sessions::add));
+        processor.finishRemaining(sessions::add);
+        return sessions;
+    }
+
+    private void printCandidateSimilarityDistribution(
+            String combination,
+            SimilarityFeatureDistribution distribution
+    ) {
+        System.out.println("========================================");
+        System.out.println("Candidate Combination: " + combination);
+        System.out.println("========================================");
+        System.out.println("Candidate pairs: " + distribution.command().count());
+        printStatistics("Command similarity", distribution.command());
+        printStatistics("Event similarity", distribution.event());
+        printStatistics("File hash similarity", distribution.fileHash());
+        printStatistics("HASSH similarity", distribution.hassh());
+        printStatistics("Client version similarity", distribution.clientVersion());
+        printStatistics("Download URL similarity", distribution.downloadUrl());
+        printStatistics("Destination IP similarity", distribution.destinationIp());
+        printStatistics("Destination port similarity", distribution.destinationPort());
+        printStatistics("Login behavior similarity", distribution.loginBehavior());
+        printStatistics("Temporal distance (seconds)", distribution.temporalDistanceSeconds());
+        System.out.println();
+    }
+
+    private void printStatistics(String name, SimilarityStatistics statistics) {
+        System.out.println();
+        System.out.println(name);
+        System.out.printf("  min: %.6f%n", statistics.min());
+        System.out.printf("  median: %.6f%n", statistics.median());
+        System.out.printf("  p75: %.6f%n", statistics.p75());
+        System.out.printf("  p90: %.6f%n", statistics.p90());
+        System.out.printf("  p95: %.6f%n", statistics.p95());
+        System.out.printf("  max: %.6f%n", statistics.max());
     }
 }

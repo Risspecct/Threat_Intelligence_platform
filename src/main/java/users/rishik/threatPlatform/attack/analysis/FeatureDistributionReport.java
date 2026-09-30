@@ -24,4 +24,5 @@ public record FeatureDistributionReport(
         Map<String, Long> topDownloadUrls,
         Map<String, Long> topDestinationIps,
         Map<Integer, Long> topDestinationPorts
-) {}
+) {
+}
