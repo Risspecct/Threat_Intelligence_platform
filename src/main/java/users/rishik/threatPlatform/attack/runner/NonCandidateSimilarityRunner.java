@@ -13,6 +13,9 @@ import users.rishik.threatPlatform.attack.candidate.NonCandidatePairSampler;
 import users.rishik.threatPlatform.attack.service.RawCowrieEventReader;
 import users.rishik.threatPlatform.attack.service.SessionBehaviorExtractor;
 import users.rishik.threatPlatform.similarity.service.SessionSimilarityService;
+import users.rishik.threatPlatform.attack.analysis.distribution.FeatureDistribution;
+import users.rishik.threatPlatform.attack.analysis.distribution.SimilarityDistributionAnalyzer;
+import users.rishik.threatPlatform.attack.analysis.distribution.SimilarityFeature;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -117,6 +120,16 @@ public class NonCandidateSimilarityRunner
                         + report.similarities().size()
         );
 
+        SimilarityDistributionAnalyzer distributionAnalyzer =
+                new SimilarityDistributionAnalyzer();
+
+        var distributions =
+                distributionAnalyzer.analyze(
+                        report.similarities()
+                );
+
+        printDistributions(distributions);
+
         System.out.printf(
                 "Analysis time: %.2f seconds%n",
                 elapsed / 1000.0
@@ -150,5 +163,91 @@ public class NonCandidateSimilarityRunner
         }
 
         return path;
+    }
+
+    private void printDistributions(
+            java.util.Map<SimilarityFeature, FeatureDistribution> distributions
+    ) {
+
+        System.out.println();
+        System.out.println(
+                "========================================"
+        );
+        System.out.println(
+                "   Non-Candidate Similarity Distributions"
+        );
+        System.out.println(
+                "========================================"
+        );
+
+        for (SimilarityFeature feature :
+                SimilarityFeature.values()) {
+
+            FeatureDistribution distribution =
+                    distributions.get(feature);
+
+            System.out.println();
+            System.out.println(feature);
+
+            System.out.printf(
+                    "  total count: %d%n",
+                    distribution.totalCount()
+            );
+
+            System.out.printf(
+                    "  comparable count: %d%n",
+                    distribution.comparableCount()
+            );
+
+            System.out.printf(
+                    "  comparable rate: %.6f%n",
+                    distribution.comparableRate()
+            );
+
+            System.out.printf(
+                    "  mean: %.6f%n",
+                    distribution.mean()
+            );
+
+            System.out.printf(
+                    "  p25: %.6f%n",
+                    distribution.p25()
+            );
+
+            System.out.printf(
+                    "  median: %.6f%n",
+                    distribution.median()
+            );
+
+            System.out.printf(
+                    "  p75: %.6f%n",
+                    distribution.p75()
+            );
+
+            System.out.printf(
+                    "  p90: %.6f%n",
+                    distribution.p90()
+            );
+
+            System.out.printf(
+                    "  p95: %.6f%n",
+                    distribution.p95()
+            );
+
+            System.out.printf(
+                    "  p99: %.6f%n",
+                    distribution.p99()
+            );
+
+            System.out.printf(
+                    "  min: %.6f%n",
+                    distribution.min()
+            );
+
+            System.out.printf(
+                    "  max: %.6f%n",
+                    distribution.max()
+            );
+        }
     }
 }

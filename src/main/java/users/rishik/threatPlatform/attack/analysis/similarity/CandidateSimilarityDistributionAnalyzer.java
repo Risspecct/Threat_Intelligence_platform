@@ -30,21 +30,24 @@ public class CandidateSimilarityDistributionAnalyzer {
             CandidatePairGenerationResult candidatePairs
     ) {
         Map<String, List<SimilarityResult>> resultsByCombination = new TreeMap<>();
+        List<SimilarityResult> similarities = new ArrayList<>(candidatePairs.pairSignals().size());
 
         for (Map.Entry<CandidatePair, EnumSet<CandidateSignal>> entry : candidatePairs.pairSignals().entrySet()) {
             CandidatePair pair = entry.getKey();
-            SimilarityResult result = similarityService.compare(
-                    sessions.get(pair.first()), sessions.get(pair.second()));
-            resultsByCombination.computeIfAbsent(combinationName(entry.getValue()),
-                    ignored -> new ArrayList<>()).add(result);
+            SimilarityResult result = similarityService.compare(sessions.get(pair.first()), sessions.get(pair.second()));
+            resultsByCombination.computeIfAbsent(combinationName(entry.getValue()), ignored -> new ArrayList<>()).add(result);
+            similarities.add(result);
         }
 
         Map<String, SimilarityFeatureDistribution> distributions = new LinkedHashMap<>();
         resultsByCombination.forEach((combination, results) ->
                 distributions.put(combination, calculateFeatureDistribution(results)));
 
-        return new CandidateSimilarityDistributionReport(candidatePairs.pairSignals().size(),
-                Collections.unmodifiableMap(new LinkedHashMap<>(distributions)));
+        return new CandidateSimilarityDistributionReport(
+                candidatePairs.pairSignals().size(),
+                distributions,
+                similarities
+        );
     }
 
     public static SimilarityFeatureDistribution calculateFeatureDistribution(List<SimilarityResult> results) {

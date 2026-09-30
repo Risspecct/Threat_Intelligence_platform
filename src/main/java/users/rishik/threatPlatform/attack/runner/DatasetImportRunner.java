@@ -12,11 +12,16 @@ import users.rishik.threatPlatform.attack.analysis.similarity.*;
 import users.rishik.threatPlatform.attack.candidate.CandidateGenerationRules;
 import users.rishik.threatPlatform.attack.candidate.CandidatePairGenerationResult;
 import users.rishik.threatPlatform.attack.candidate.CandidatePairGenerator;
+import users.rishik.threatPlatform.attack.dto.SessionBehavior;
 import users.rishik.threatPlatform.attack.service.RawCowrieEventReader;
 import users.rishik.threatPlatform.attack.service.SessionBehaviorExtractor;
 import users.rishik.threatPlatform.attack.service.SessionEventProcessor;
 import users.rishik.threatPlatform.attack.service.SessionFileReader;
 import users.rishik.threatPlatform.similarity.service.SessionSimilarityService;
+import users.rishik.threatPlatform.attack.analysis.distribution.FeatureDistribution;
+import users.rishik.threatPlatform.attack.analysis.distribution.SimilarityDistributionAnalyzer;
+import users.rishik.threatPlatform.attack.analysis.distribution.SimilarityFeature;
+import users.rishik.threatPlatform.similarity.model.SimilarityResult;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -755,28 +760,154 @@ public class DatasetImportRunner implements ApplicationRunner {
         System.out.println("Input: " + path);
 
         long start = System.currentTimeMillis();
+
         List<users.rishik.threatPlatform.attack.dto.SessionBehavior> sessions =
                 loadSessionBehaviors(path);
-        CandidatePairGenerationResult candidatePairs = new CandidatePairGenerator(
-                CandidateGenerationRules.defaults()).generate(sessions);
+
+        CandidatePairGenerationResult candidatePairs =
+                new CandidatePairGenerator(
+                        CandidateGenerationRules.defaults()
+                ).generate(sessions);
+
         CandidateSimilarityDistributionReport report =
-                new CandidateSimilarityDistributionAnalyzer(sessionSimilarityService)
-                        .analyze(sessions, candidatePairs);
-        long elapsed = System.currentTimeMillis() - start;
+                new CandidateSimilarityDistributionAnalyzer(
+                        sessionSimilarityService
+                ).analyze(
+                        sessions,
+                        candidatePairs
+                );
+
+        long elapsed =
+                System.currentTimeMillis() - start;
 
         System.out.println();
-        System.out.println("Sessions analyzed: " + sessions.size());
-        System.out.println("Total unique candidate pairs: " + report.candidatePairs());
+        System.out.println(
+                "Sessions analyzed: " + sessions.size()
+        );
+
+        System.out.println(
+                "Total unique candidate pairs: "
+                        + report.candidatePairs()
+        );
+
+        /*
+         * Existing grouped analysis
+         */
         System.out.println();
-        report.distributions().forEach(this::printCandidateSimilarityDistribution);
-        System.out.printf("Total runtime: %.2f seconds%n", elapsed / 1000.0);
+
+        report.distributions()
+                .forEach(
+                        this::printCandidateSimilarityDistribution
+                );
+
+        /*
+         * New overall candidate distribution
+         */
+        List<SimilarityResult> similarities =
+                report.similarities();
+
+        SimilarityDistributionAnalyzer distributionAnalyzer =
+                new SimilarityDistributionAnalyzer();
+
+        Map<SimilarityFeature, FeatureDistribution> overallDistribution =
+                distributionAnalyzer.analyze(similarities);
+
+        System.out.println();
         System.out.println("========================================");
+        System.out.println(" Overall Candidate Similarity Distribution");
+        System.out.println("========================================");
+
+        System.out.println(
+                "Candidate pairs: " + similarities.size()
+        );
+
+        overallDistribution.forEach(
+                this::printOverallSimilarityDistribution
+        );
+
+        System.out.printf(
+                "Total runtime: %.2f seconds%n",
+                elapsed / 1000.0
+        );
+
+        System.out.println(
+                "========================================"
+        );
     }
 
-    private List<users.rishik.threatPlatform.attack.dto.SessionBehavior> loadSessionBehaviors(
+    private void printOverallSimilarityDistribution(
+            SimilarityFeature feature,
+            FeatureDistribution distribution
+    ) {
+
+        System.out.println();
+        System.out.println(feature);
+
+        System.out.printf(
+                "  total count: %d%n",
+                distribution.totalCount()
+        );
+
+        System.out.printf(
+                "  comparable count: %d%n",
+                distribution.comparableCount()
+        );
+
+        System.out.printf(
+                "  comparable rate: %.6f%n",
+                distribution.comparableRate()
+        );
+
+        System.out.printf(
+                "  mean: %.6f%n",
+                distribution.mean()
+        );
+
+        System.out.printf(
+                "  p25: %.6f%n",
+                distribution.p25()
+        );
+
+        System.out.printf(
+                "  median: %.6f%n",
+                distribution.median()
+        );
+
+        System.out.printf(
+                "  p75: %.6f%n",
+                distribution.p75()
+        );
+
+        System.out.printf(
+                "  p90: %.6f%n",
+                distribution.p90()
+        );
+
+        System.out.printf(
+                "  p95: %.6f%n",
+                distribution.p95()
+        );
+
+        System.out.printf(
+                "  p99: %.6f%n",
+                distribution.p99()
+        );
+
+        System.out.printf(
+                "  min: %.6f%n",
+                distribution.min()
+        );
+
+        System.out.printf(
+                "  max: %.6f%n",
+                distribution.max()
+        );
+    }
+
+    private List<SessionBehavior> loadSessionBehaviors(
             Path path
     ) throws Exception {
-        List<users.rishik.threatPlatform.attack.dto.SessionBehavior> sessions =
+        List<SessionBehavior> sessions =
                 new ArrayList<>();
         SessionBehaviorExtractor extractor = new SessionBehaviorExtractor();
         SessionEventProcessor processor = new SessionEventProcessor(extractor);
