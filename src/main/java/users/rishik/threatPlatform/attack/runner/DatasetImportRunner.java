@@ -8,6 +8,9 @@ import users.rishik.threatPlatform.attack.analysis.*;
 import users.rishik.threatPlatform.attack.service.RawCowrieEventReader;
 import users.rishik.threatPlatform.attack.service.SessionBehaviorExtractor;
 import users.rishik.threatPlatform.attack.service.SessionFileReader;
+import users.rishik.threatPlatform.attack.analysis.CandidateSimilarityAnalyzer;
+import users.rishik.threatPlatform.attack.analysis.CandidateSimilarityReport;
+import users.rishik.threatPlatform.similarity.service.SessionSimilarityService;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -18,7 +21,7 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 public class DatasetImportRunner implements ApplicationRunner {
-
+    private final SessionSimilarityService sessionSimilarityService;
     private final SessionFileReader sessionFileReader;
 
     @Override
@@ -40,6 +43,11 @@ public class DatasetImportRunner implements ApplicationRunner {
 
         if (args.containsOption("candidate-overlap-analysis")) {
             runCandidateOverlapAnalysis(args);
+            return;
+        }
+
+        if (args.containsOption("candidate-similarity-analysis")) {
+            runCandidateSimilarityAnalysis(args);
             return;
         }
     }
@@ -455,6 +463,131 @@ public class DatasetImportRunner implements ApplicationRunner {
                                         + entry.getValue()
                         )
                 );
+
+        System.out.println();
+
+        System.out.printf(
+                "Analysis time: %.2f seconds%n",
+                elapsed / 1000.0
+        );
+
+        System.out.println("========================================");
+    }
+
+    private void runCandidateSimilarityAnalysis(
+            ApplicationArguments args
+    ) throws Exception {
+
+        Path path = getDatasetPath(
+                args,
+                "Candidate similarity analysis requires --file=<path>"
+        );
+
+        System.out.println();
+        System.out.println("========================================");
+        System.out.println("       Candidate Similarity Analysis");
+        System.out.println("========================================");
+        System.out.println("Input: " + path);
+
+        CandidateGenerationRules rules =
+                CandidateGenerationRules.defaults();
+
+        RawCowrieEventReader reader =
+                new RawCowrieEventReader(new ObjectMapper());
+
+        SessionBehaviorExtractor extractor =
+                new SessionBehaviorExtractor();
+
+        CandidateSimilarityAnalyzer analyzer =
+                new CandidateSimilarityAnalyzer(
+                        reader,
+                        extractor,
+                        rules,
+                        sessionSimilarityService
+                );
+
+        long start = System.currentTimeMillis();
+
+        CandidateSimilarityReport report =
+                analyzer.analyze(path);
+
+        long elapsed =
+                System.currentTimeMillis() - start;
+
+        System.out.println();
+        System.out.println(
+                "Sessions analyzed: "
+                        + report.sessionsAnalyzed()
+        );
+
+        System.out.println(
+                "Candidate pairs compared: "
+                        + report.candidatePairsCompared()
+        );
+
+        System.out.println();
+        System.out.println("Exact matches:");
+
+        System.out.println(
+                "  Command: "
+                        + report.exactCommandMatches()
+        );
+
+        System.out.println(
+                "  Event: "
+                        + report.exactEventMatches()
+        );
+
+        System.out.println(
+                "  File hash: "
+                        + report.exactFileHashMatches()
+        );
+
+        System.out.println(
+                "  HASSH: "
+                        + report.exactHasshMatches()
+        );
+
+        System.out.println(
+                "  Client version: "
+                        + report.exactClientVersionMatches()
+        );
+
+        System.out.println(
+                "  Download URL: "
+                        + report.exactDownloadUrlMatches()
+        );
+
+        System.out.println(
+                "  Destination IP: "
+                        + report.exactDestinationIpMatches()
+        );
+
+        System.out.println(
+                "  Destination port: "
+                        + report.exactDestinationPortMatches()
+        );
+
+        System.out.println();
+        System.out.println(
+                "Multiple core behavioral matches: "
+                        + report.multipleCoreBehavioralMatches()
+        );
+
+        System.out.println();
+        System.out.println("Temporal distance:");
+
+        System.out.println(
+                "  Minimum: "
+                        + report.minimumTemporalDistanceSeconds()
+                        + " seconds"
+        );
+
+        System.out.println(
+                "  Maximum: "
+                        + report.maximumTemporalDistanceSeconds()
+                        + " seconds"
+        );
 
         System.out.println();
 
