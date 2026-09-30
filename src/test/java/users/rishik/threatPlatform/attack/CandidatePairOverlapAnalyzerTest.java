@@ -3,6 +3,7 @@ package users.rishik.threatPlatform.attack;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import users.rishik.threatPlatform.attack.analysis.CandidateGenerationRules;
+import users.rishik.threatPlatform.attack.analysis.CandidatePairGenerator;
 import users.rishik.threatPlatform.attack.analysis.CandidatePairOverlapAnalyzer;
 import users.rishik.threatPlatform.attack.analysis.CandidatePairOverlapReport;
 import users.rishik.threatPlatform.attack.dto.SessionBehavior;
@@ -45,11 +46,17 @@ class CandidatePairOverlapAnalyzerTest {
         List<SessionBehavior> sessions =
                 List.of(session1, session2, session3);
 
+        CandidateGenerationRules rules =
+                new CandidateGenerationRules(100);
+
+        CandidatePairGenerator candidatePairGenerator =
+                new CandidatePairGenerator(rules);
+
         CandidatePairOverlapAnalyzer analyzer =
                 new CandidatePairOverlapAnalyzer(
+                        candidatePairGenerator,
                         new RawCowrieEventReader(new ObjectMapper()),
-                        new SessionBehaviorExtractor(),
-                        new CandidateGenerationRules(100)
+                        new SessionBehaviorExtractor()
                 );
 
         Method analyzeSessions =

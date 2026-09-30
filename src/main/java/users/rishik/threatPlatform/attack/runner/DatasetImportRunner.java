@@ -8,8 +8,6 @@ import users.rishik.threatPlatform.attack.analysis.*;
 import users.rishik.threatPlatform.attack.service.RawCowrieEventReader;
 import users.rishik.threatPlatform.attack.service.SessionBehaviorExtractor;
 import users.rishik.threatPlatform.attack.service.SessionFileReader;
-import users.rishik.threatPlatform.attack.analysis.CandidateSimilarityAnalyzer;
-import users.rishik.threatPlatform.attack.analysis.CandidateSimilarityReport;
 import users.rishik.threatPlatform.similarity.service.SessionSimilarityService;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,6 +19,7 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 public class DatasetImportRunner implements ApplicationRunner {
+
     private final SessionSimilarityService sessionSimilarityService;
     private final SessionFileReader sessionFileReader;
 
@@ -50,11 +49,19 @@ public class DatasetImportRunner implements ApplicationRunner {
             runCandidateSimilarityAnalysis(args);
             return;
         }
+
+        if (args.containsOption("candidate-inspection")) {
+            runCandidateInspection(args);
+            return;
+        }
     }
 
     private void runImport(ApplicationArguments args) throws Exception {
 
-        Path path = getDatasetPath(args, "Dataset import requires --file=<path>");
+        Path path = getDatasetPath(
+                args,
+                "Dataset import requires --file=<path>"
+        );
 
         System.out.println();
         System.out.println("========================================");
@@ -71,7 +78,10 @@ public class DatasetImportRunner implements ApplicationRunner {
         System.out.println();
         System.out.println("Records processed: " + processed);
         System.out.println("Import completed successfully.");
-        System.out.printf("Time: %.2f seconds%n", elapsed / 1000.0);
+        System.out.printf(
+                "Time: %.2f seconds%n",
+                elapsed / 1000.0
+        );
         System.out.println("========================================");
     }
 
@@ -105,7 +115,8 @@ public class DatasetImportRunner implements ApplicationRunner {
         FeatureDistributionReport report =
                 analyzer.analyze(path);
 
-        long elapsed = System.currentTimeMillis() - start;
+        long elapsed =
+                System.currentTimeMillis() - start;
 
         printReport(report);
 
@@ -123,7 +134,9 @@ public class DatasetImportRunner implements ApplicationRunner {
     ) {
 
         if (!args.containsOption("file")) {
-            throw new IllegalArgumentException(missingFileMessage);
+            throw new IllegalArgumentException(
+                    missingFileMessage
+            );
         }
 
         String filePath =
@@ -145,42 +158,78 @@ public class DatasetImportRunner implements ApplicationRunner {
     ) {
 
         System.out.println();
-        System.out.println("Sessions analyzed: "
-                + report.sessionsAnalyzed());
+        System.out.println(
+                "Sessions analyzed: "
+                        + report.sessionsAnalyzed()
+        );
 
         System.out.println();
 
         System.out.println("Feature coverage:");
-        System.out.println("  Commands: "
-                + report.sessionsWithCommands());
-        System.out.println("  File hashes: "
-                + report.sessionsWithFileHashes());
-        System.out.println("  HASSH: "
-                + report.sessionsWithHassh());
-        System.out.println("  Download URLs: "
-                + report.sessionsWithDownloadUrls());
-        System.out.println("  Destination IPs: "
-                + report.sessionsWithDestinationIps());
-        System.out.println("  Destination ports: "
-                + report.sessionsWithDestinationPorts());
+
+        System.out.println(
+                "  Commands: "
+                        + report.sessionsWithCommands()
+        );
+
+        System.out.println(
+                "  File hashes: "
+                        + report.sessionsWithFileHashes()
+        );
+
+        System.out.println(
+                "  HASSH: "
+                        + report.sessionsWithHassh()
+        );
+
+        System.out.println(
+                "  Download URLs: "
+                        + report.sessionsWithDownloadUrls()
+        );
+
+        System.out.println(
+                "  Destination IPs: "
+                        + report.sessionsWithDestinationIps()
+        );
+
+        System.out.println(
+                "  Destination ports: "
+                        + report.sessionsWithDestinationPorts()
+        );
 
         System.out.println();
 
         System.out.println("Unique values:");
-        System.out.println("  File hashes: "
-                + report.uniqueFileHashes());
-        System.out.println("  HASSH: "
-                + report.uniqueHasshValues());
-        System.out.println("  Download URLs: "
-                + report.uniqueDownloadUrls());
-        System.out.println("  Destination IPs: "
-                + report.uniqueDestinationIps());
-        System.out.println("  Destination ports: "
-                + report.uniqueDestinationPorts());
+
+        System.out.println(
+                "  File hashes: "
+                        + report.uniqueFileHashes()
+        );
+
+        System.out.println(
+                "  HASSH: "
+                        + report.uniqueHasshValues()
+        );
+
+        System.out.println(
+                "  Download URLs: "
+                        + report.uniqueDownloadUrls()
+        );
+
+        System.out.println(
+                "  Destination IPs: "
+                        + report.uniqueDestinationIps()
+        );
+
+        System.out.println(
+                "  Destination ports: "
+                        + report.uniqueDestinationPorts()
+        );
 
         System.out.println();
 
         System.out.println("Top commands:");
+
         report.topCommands()
                 .forEach((value, count) ->
                         System.out.println(
@@ -191,6 +240,7 @@ public class DatasetImportRunner implements ApplicationRunner {
         System.out.println();
 
         System.out.println("Top file hashes:");
+
         report.topFileHashes()
                 .forEach((value, count) ->
                         System.out.println(
@@ -201,6 +251,7 @@ public class DatasetImportRunner implements ApplicationRunner {
         System.out.println();
 
         System.out.println("Top HASSH values:");
+
         report.topHasshValues()
                 .forEach((value, count) ->
                         System.out.println(
@@ -211,6 +262,7 @@ public class DatasetImportRunner implements ApplicationRunner {
         System.out.println();
 
         System.out.println("Top download URLs:");
+
         report.topDownloadUrls()
                 .forEach((value, count) ->
                         System.out.println(
@@ -221,6 +273,7 @@ public class DatasetImportRunner implements ApplicationRunner {
         System.out.println();
 
         System.out.println("Top destination IPs:");
+
         report.topDestinationIps()
                 .forEach((value, count) ->
                         System.out.println(
@@ -231,6 +284,7 @@ public class DatasetImportRunner implements ApplicationRunner {
         System.out.println();
 
         System.out.println("Top destination ports:");
+
         report.topDestinationPorts()
                 .forEach((value, count) ->
                         System.out.println(
@@ -281,18 +335,21 @@ public class DatasetImportRunner implements ApplicationRunner {
                 System.currentTimeMillis() - start;
 
         System.out.println();
+
         System.out.println(
                 "Sessions analyzed: "
                         + report.sessionsAnalyzed()
         );
 
         System.out.println();
+
         System.out.println(
                 "Maximum feature frequency: "
                         + rules.maxFeatureFrequency()
         );
 
         System.out.println();
+
         System.out.println("Eligible feature values:");
 
         System.out.println(
@@ -316,6 +373,7 @@ public class DatasetImportRunner implements ApplicationRunner {
         );
 
         System.out.println();
+
         System.out.println("Candidate pairs by signal:");
 
         System.out.println(
@@ -339,6 +397,7 @@ public class DatasetImportRunner implements ApplicationRunner {
         );
 
         System.out.println();
+
         System.out.println(
                 "Total candidate pairs before deduplication: "
                         + report.totalCandidatePairsBeforeDeduplication()
@@ -355,6 +414,7 @@ public class DatasetImportRunner implements ApplicationRunner {
         );
 
         System.out.println();
+
         System.out.printf(
                 "Analysis time: %.2f seconds%n",
                 elapsed / 1000.0
@@ -387,11 +447,14 @@ public class DatasetImportRunner implements ApplicationRunner {
         SessionBehaviorExtractor extractor =
                 new SessionBehaviorExtractor();
 
+        CandidatePairGenerator candidatePairGenerator =
+                new CandidatePairGenerator(rules);
+
         CandidatePairOverlapAnalyzer analyzer =
                 new CandidatePairOverlapAnalyzer(
+                        candidatePairGenerator,
                         reader,
-                        extractor,
-                        rules
+                        extractor
                 );
 
         long start = System.currentTimeMillis();
@@ -403,12 +466,14 @@ public class DatasetImportRunner implements ApplicationRunner {
                 System.currentTimeMillis() - start;
 
         System.out.println();
+
         System.out.println(
                 "Sessions analyzed: "
                         + report.sessionsAnalyzed()
         );
 
         System.out.println();
+
         System.out.println("Candidate pairs:");
 
         System.out.println(
@@ -422,6 +487,7 @@ public class DatasetImportRunner implements ApplicationRunner {
         );
 
         System.out.println();
+
         System.out.println("Evidence count:");
 
         System.out.println(
@@ -445,6 +511,7 @@ public class DatasetImportRunner implements ApplicationRunner {
         );
 
         System.out.println();
+
         System.out.println("Signal combinations:");
 
         report.signalCombinationCounts()
@@ -515,6 +582,7 @@ public class DatasetImportRunner implements ApplicationRunner {
                 System.currentTimeMillis() - start;
 
         System.out.println();
+
         System.out.println(
                 "Sessions analyzed: "
                         + report.sessionsAnalyzed()
@@ -526,6 +594,7 @@ public class DatasetImportRunner implements ApplicationRunner {
         );
 
         System.out.println();
+
         System.out.println("Exact matches:");
 
         System.out.println(
@@ -569,12 +638,14 @@ public class DatasetImportRunner implements ApplicationRunner {
         );
 
         System.out.println();
+
         System.out.println(
                 "Multiple core behavioral matches: "
                         + report.multipleCoreBehavioralMatches()
         );
 
         System.out.println();
+
         System.out.println("Temporal distance:");
 
         System.out.println(
@@ -593,6 +664,60 @@ public class DatasetImportRunner implements ApplicationRunner {
 
         System.out.printf(
                 "Analysis time: %.2f seconds%n",
+                elapsed / 1000.0
+        );
+
+        System.out.println("========================================");
+    }
+
+    private void runCandidateInspection(
+            ApplicationArguments args
+    ) throws Exception {
+
+        Path path = getDatasetPath(
+                args,
+                "Candidate inspection requires --file=<path>"
+        );
+
+        System.out.println();
+        System.out.println("========================================");
+        System.out.println("       Candidate Pair Inspection");
+        System.out.println("========================================");
+        System.out.println("Input: " + path);
+
+        CandidateGenerationRules rules =
+                CandidateGenerationRules.defaults();
+
+        RawCowrieEventReader reader =
+                new RawCowrieEventReader(
+                        new ObjectMapper()
+                );
+
+        SessionBehaviorExtractor extractor =
+                new SessionBehaviorExtractor();
+
+        CandidatePairGenerator candidatePairGenerator =
+                new CandidatePairGenerator(rules);
+
+        CandidatePairInspector inspector =
+                new CandidatePairInspector(
+                        candidatePairGenerator,
+                        reader,
+                        extractor,
+                        sessionSimilarityService
+                );
+
+        long start =
+                System.currentTimeMillis();
+
+        inspector.inspect(path);
+
+        long elapsed =
+                System.currentTimeMillis() - start;
+
+        System.out.println();
+        System.out.printf(
+                "Inspection time: %.2f seconds%n",
                 elapsed / 1000.0
         );
 
