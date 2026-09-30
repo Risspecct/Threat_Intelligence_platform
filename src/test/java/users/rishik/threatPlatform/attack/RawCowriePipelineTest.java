@@ -119,7 +119,7 @@ class RawCowriePipelineTest {
             // similarity = 0 / 1 = 0
             assertEquals(
                     0.0,
-                    result.getCommandSimilarity()
+                    result.getCommandSimilarity().similarity()
             );
 
             // Event sequences:
@@ -135,46 +135,46 @@ class RawCowriePipelineTest {
             // similarity = 2 / 3
             assertEquals(
                     2.0 / 3.0,
-                    result.getEventSimilarity()
+                    result.getEventSimilarity().similarity()
             );
 
             // No file hashes were supplied.
             // Empty set vs empty set = 1.0
             assertEquals(
                     1.0,
-                    result.getFileHashSimilarity()
+                    result.getFileHashSimilarity().similarity()
             );
 
             // No HASSH values were supplied.
-            // null vs null = 0.0 according to ExactMatchSimilarityCalculator.
+            // Both values are absent, so this is not comparable evidence.
             assertEquals(
-                    0.0,
-                    result.getHasshSimilarity()
+                    1.0,
+                    result.getHasshSimilarity().similarity()
             );
 
             // No client versions were supplied.
             assertEquals(
-                    0.0,
-                    result.getClientVersionSimilarity()
+                    1.0,
+                    result.getClientVersionSimilarity().similarity()
             );
 
             // No download URLs were supplied.
             // Empty set vs empty set = 1.0
             assertEquals(
                     1.0,
-                    result.getDownloadUrlSimilarity()
+                    result.getDownloadUrlSimilarity().similarity()
             );
 
             // No destination IPs were supplied.
             assertEquals(
                     1.0,
-                    result.getDestinationIpSimilarity()
+                    result.getDestinationIpSimilarity().similarity()
             );
 
             // No destination ports were supplied.
             assertEquals(
                     1.0,
-                    result.getDestinationPortSimilarity()
+                    result.getDestinationPortSimilarity().similarity()
             );
 
             // session-A:
@@ -186,7 +186,7 @@ class RawCowriePipelineTest {
             // Completely different login behavior = 0.0
             assertEquals(
                     0.0,
-                    result.getLoginBehaviorSimilarity()
+                    result.getLoginBehaviorSimilarity().similarity()
             );
 
             // First events:

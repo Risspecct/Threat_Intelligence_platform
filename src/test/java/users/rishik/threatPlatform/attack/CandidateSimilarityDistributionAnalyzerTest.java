@@ -13,6 +13,7 @@ import users.rishik.threatPlatform.similarity.calculator.LoginBehaviorSimilarity
 import users.rishik.threatPlatform.similarity.calculator.SequenceSimilarityCalculator;
 import users.rishik.threatPlatform.similarity.calculator.SetSimilarityCalculator;
 import users.rishik.threatPlatform.similarity.model.SimilarityResult;
+import users.rishik.threatPlatform.similarity.model.FeatureSimilarity;
 import users.rishik.threatPlatform.similarity.service.SessionSimilarityService;
 
 import java.time.LocalDateTime;
@@ -74,18 +75,18 @@ class CandidateSimilarityDistributionAnalyzerTest {
     @Test
     void shouldAggregateEverySimilarityDimension() {
         List<SimilarityResult> results = List.of(
-                result(0.0, 0), result(10.0, 10), result(20.0, 20), result(30.0, 30));
+                result(0.0, 0), result(0.1, 10), result(0.2, 20), result(0.3, 30));
 
         SimilarityFeatureDistribution distribution =
                 CandidateSimilarityDistributionAnalyzer.calculateFeatureDistribution(results);
 
         assertEquals(4, distribution.command().count());
         assertEquals(0.0, distribution.command().min());
-        assertEquals(15.0, distribution.command().median());
-        assertEquals(22.5, distribution.command().p75());
-        assertEquals(27.0, distribution.command().p90(), 0.000001);
-        assertEquals(28.5, distribution.command().p95(), 0.000001);
-        assertEquals(30.0, distribution.command().max());
+        assertEquals(0.15, distribution.command().median(), 0.000001);
+        assertEquals(0.225, distribution.command().p75(), 0.000001);
+        assertEquals(0.27, distribution.command().p90(), 0.000001);
+        assertEquals(0.285, distribution.command().p95(), 0.000001);
+        assertEquals(0.3, distribution.command().max());
         assertEquals(15.0, distribution.temporalDistanceSeconds().median());
     }
 
@@ -123,8 +124,9 @@ class CandidateSimilarityDistributionAnalyzerTest {
     }
 
     private SimilarityResult result(double value, long temporalDistance) {
-        return new SimilarityResult(value, value, value, value, value, value, value,
-                value, value, temporalDistance, List.of());
+        FeatureSimilarity similarity = new FeatureSimilarity(value, true);
+        return new SimilarityResult(similarity, similarity, similarity, similarity, similarity,
+                similarity, similarity, similarity, similarity, temporalDistance, List.of());
     }
 
     private SessionSimilarityService similarityService() {

@@ -46,15 +46,15 @@ public class CandidateSimilarityDistributionAnalyzer {
 
     public static SimilarityFeatureDistribution calculateFeatureDistribution(List<SimilarityResult> results) {
         return new SimilarityFeatureDistribution(
-                calculateStatistics(results.stream().map(SimilarityResult::getCommandSimilarity).toList()),
-                calculateStatistics(results.stream().map(SimilarityResult::getEventSimilarity).toList()),
-                calculateStatistics(results.stream().map(SimilarityResult::getFileHashSimilarity).toList()),
-                calculateStatistics(results.stream().map(SimilarityResult::getHasshSimilarity).toList()),
-                calculateStatistics(results.stream().map(SimilarityResult::getClientVersionSimilarity).toList()),
-                calculateStatistics(results.stream().map(SimilarityResult::getDownloadUrlSimilarity).toList()),
-                calculateStatistics(results.stream().map(SimilarityResult::getDestinationIpSimilarity).toList()),
-                calculateStatistics(results.stream().map(SimilarityResult::getDestinationPortSimilarity).toList()),
-                calculateStatistics(results.stream().map(SimilarityResult::getLoginBehaviorSimilarity).toList()),
+                calculateStatistics(results.stream().map(result -> result.getCommandSimilarity().similarity()).toList()),
+                calculateStatistics(results.stream().map(result -> result.getEventSimilarity().similarity()).toList()),
+                calculateStatistics(results.stream().map(result -> result.getFileHashSimilarity().similarity()).toList()),
+                calculateStatistics(results.stream().map(result -> result.getHasshSimilarity().similarity()).toList()),
+                calculateStatistics(results.stream().map(result -> result.getClientVersionSimilarity().similarity()).toList()),
+                calculateStatistics(results.stream().map(result -> result.getDownloadUrlSimilarity().similarity()).toList()),
+                calculateStatistics(results.stream().map(result -> result.getDestinationIpSimilarity().similarity()).toList()),
+                calculateStatistics(results.stream().map(result -> result.getDestinationPortSimilarity().similarity()).toList()),
+                calculateStatistics(results.stream().map(result -> result.getLoginBehaviorSimilarity().similarity()).toList()),
                 calculateStatistics(results.stream()
                         .map(result -> (double) result.getTemporalDistanceSeconds()).toList())
         );

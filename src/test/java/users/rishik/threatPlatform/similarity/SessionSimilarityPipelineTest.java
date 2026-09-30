@@ -126,47 +126,47 @@ class SessionSimilarityPipelineTest {
 
         assertEquals(
                 1.0,
-                result.getCommandSimilarity()
+                result.getCommandSimilarity().similarity()
         );
 
         assertEquals(
                 1.0,
-                result.getEventSimilarity()
+                result.getEventSimilarity().similarity()
         );
 
         assertEquals(
                 1.0,
-                result.getFileHashSimilarity()
+                result.getFileHashSimilarity().similarity()
         );
 
         assertEquals(
                 1.0,
-                result.getHasshSimilarity()
+                result.getHasshSimilarity().similarity()
         );
 
         assertEquals(
                 1.0,
-                result.getClientVersionSimilarity()
+                result.getClientVersionSimilarity().similarity()
         );
 
         assertEquals(
                 1.0,
-                result.getDownloadUrlSimilarity()
+                result.getDownloadUrlSimilarity().similarity()
         );
 
         assertEquals(
                 1.0,
-                result.getDestinationIpSimilarity()
+                result.getDestinationIpSimilarity().similarity()
         );
 
         assertEquals(
                 1.0,
-                result.getDestinationPortSimilarity()
+                result.getDestinationPortSimilarity().similarity()
         );
 
         assertEquals(
                 1.0,
-                result.getLoginBehaviorSimilarity()
+                result.getLoginBehaviorSimilarity().similarity()
         );
 
         assertEquals(

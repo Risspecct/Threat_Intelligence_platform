@@ -7,6 +7,7 @@ import users.rishik.threatPlatform.similarity.calculator.LoginBehaviorSimilarity
 import users.rishik.threatPlatform.similarity.calculator.SequenceSimilarityCalculator;
 import users.rishik.threatPlatform.similarity.calculator.SetSimilarityCalculator;
 import users.rishik.threatPlatform.similarity.model.SimilarityResult;
+import users.rishik.threatPlatform.similarity.model.FeatureSimilarity;
 
 import java.time.Duration;
 import java.util.HashSet;
@@ -38,61 +39,30 @@ public class SessionSimilarityService {
             SessionBehavior second
     ) {
 
-        double commandSimilarity =
-                sequenceSimilarityCalculator.calculate(
-                        first.commandSequence(),
-                        second.commandSequence()
-                );
+        FeatureSimilarity commandSimilarity = sequenceSimilarity(
+                first.commandSequence(), second.commandSequence());
 
-        double eventSimilarity =
-                sequenceSimilarityCalculator.calculate(
-                        first.eventSequence(),
-                        second.eventSequence()
-                );
+        FeatureSimilarity eventSimilarity = sequenceSimilarity(
+                first.eventSequence(), second.eventSequence());
 
-        double fileHashSimilarity =
-                setSimilarityCalculator.calculate(
-                        new HashSet<>(first.fileHashes()),
-                        new HashSet<>(second.fileHashes())
-                );
+        FeatureSimilarity fileHashSimilarity = setSimilarity(
+                new HashSet<>(first.fileHashes()), new HashSet<>(second.fileHashes()));
 
-        double hasshSimilarity =
-                exactMatchSimilarityCalculator.calculate(
-                        first.hassh(),
-                        second.hassh()
-                );
+        FeatureSimilarity hasshSimilarity = exactSimilarity(first.hassh(), second.hassh());
 
-        double clientVersionSimilarity =
-                exactMatchSimilarityCalculator.calculate(
-                        first.clientVersion(),
-                        second.clientVersion()
-                );
+        FeatureSimilarity clientVersionSimilarity = exactSimilarity(
+                first.clientVersion(), second.clientVersion());
 
-        double downloadUrlSimilarity =
-                setSimilarityCalculator.calculate(
-                        new HashSet<>(first.downloadUrls()),
-                        new HashSet<>(second.downloadUrls())
-                );
+        FeatureSimilarity downloadUrlSimilarity = setSimilarity(
+                new HashSet<>(first.downloadUrls()), new HashSet<>(second.downloadUrls()));
 
-        double destinationIpSimilarity =
-                setSimilarityCalculator.calculate(
-                        new HashSet<>(first.destinationIps()),
-                        new HashSet<>(second.destinationIps())
-                );
+        FeatureSimilarity destinationIpSimilarity = setSimilarity(
+                new HashSet<>(first.destinationIps()), new HashSet<>(second.destinationIps()));
 
-        double destinationPortSimilarity =
-                setSimilarityCalculator.calculate(
-                        toStringSet(first.destinationPorts()),
-                        toStringSet(second.destinationPorts())
-                );
+        FeatureSimilarity destinationPortSimilarity = setSimilarity(
+                toStringSet(first.destinationPorts()), toStringSet(second.destinationPorts()));
 
-        double loginBehaviorSimilarity =
-                loginBehaviorSimilarityCalculator.calculate(
-                        first.loginSuccess() ? 1 : 0,
-                        first.loginFailure() ? 1 : 0,
-                        second.loginSuccess() ? 1 : 0,
-                        second.loginFailure() ? 1 : 0
-                );
+        FeatureSimilarity loginBehaviorSimilarity = loginBehaviorSimilarity(first, second);
 
         long temporalDistanceSeconds =
                 Duration.between(
@@ -126,5 +96,40 @@ public class SessionSimilarityService {
         }
 
         return result;
+    }
+
+    private FeatureSimilarity sequenceSimilarity(List<String> first, List<String> second) {
+        return new FeatureSimilarity(sequenceSimilarityCalculator.calculate(first, second),
+                !first.isEmpty() && !second.isEmpty());
+    }
+
+    private FeatureSimilarity setSimilarity(Set<String> first, Set<String> second) {
+        return new FeatureSimilarity(setSimilarityCalculator.calculate(first, second),
+                !first.isEmpty() && !second.isEmpty());
+    }
+
+    private FeatureSimilarity exactSimilarity(String first, String second) {
+        boolean firstPresent = first != null && !first.isBlank();
+        boolean secondPresent = second != null && !second.isBlank();
+        if (!firstPresent && !secondPresent) {
+            return new FeatureSimilarity(1.0, false);
+        }
+        if (!firstPresent || !secondPresent) {
+            return new FeatureSimilarity(0.0, false);
+        }
+        return new FeatureSimilarity(exactMatchSimilarityCalculator.calculate(first, second), true);
+    }
+
+    private FeatureSimilarity loginBehaviorSimilarity(
+            SessionBehavior first,
+            SessionBehavior second
+    ) {
+        int firstSuccess = first.loginSuccess() ? 1 : 0;
+        int firstFailure = first.loginFailure() ? 1 : 0;
+        int secondSuccess = second.loginSuccess() ? 1 : 0;
+        int secondFailure = second.loginFailure() ? 1 : 0;
+        return new FeatureSimilarity(loginBehaviorSimilarityCalculator.calculate(
+                firstSuccess, firstFailure, secondSuccess, secondFailure),
+                firstSuccess + firstFailure > 0 && secondSuccess + secondFailure > 0);
     }
 }

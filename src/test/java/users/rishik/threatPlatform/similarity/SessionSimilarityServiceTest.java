@@ -73,15 +73,15 @@ class SessionSimilarityServiceTest {
         SimilarityResult result =
                 service.compare(first, second);
 
-        assertEquals(1.0, result.getCommandSimilarity());
-        assertEquals(1.0, result.getEventSimilarity());
-        assertEquals(1.0, result.getFileHashSimilarity());
-        assertEquals(1.0, result.getHasshSimilarity());
-        assertEquals(1.0, result.getClientVersionSimilarity());
-        assertEquals(1.0, result.getDownloadUrlSimilarity());
-        assertEquals(1.0, result.getDestinationIpSimilarity());
-        assertEquals(1.0, result.getDestinationPortSimilarity());
-        assertEquals(1.0, result.getLoginBehaviorSimilarity());
+        assertEquals(1.0, result.getCommandSimilarity().similarity());
+        assertEquals(1.0, result.getEventSimilarity().similarity());
+        assertEquals(1.0, result.getFileHashSimilarity().similarity());
+        assertEquals(1.0, result.getHasshSimilarity().similarity());
+        assertEquals(1.0, result.getClientVersionSimilarity().similarity());
+        assertEquals(1.0, result.getDownloadUrlSimilarity().similarity());
+        assertEquals(1.0, result.getDestinationIpSimilarity().similarity());
+        assertEquals(1.0, result.getDestinationPortSimilarity().similarity());
+        assertEquals(1.0, result.getLoginBehaviorSimilarity().similarity());
 
         assertEquals(120, result.getTemporalDistanceSeconds());
     }
@@ -135,15 +135,15 @@ class SessionSimilarityServiceTest {
         SimilarityResult result =
                 service.compare(first, second);
 
-        assertEquals(0.0, result.getCommandSimilarity());
-        assertEquals(2.0 / 3.0, result.getEventSimilarity());
-        assertEquals(0.0, result.getFileHashSimilarity());
-        assertEquals(0.0, result.getHasshSimilarity());
-        assertEquals(0.0, result.getClientVersionSimilarity());
-        assertEquals(0.0, result.getDownloadUrlSimilarity());
-        assertEquals(0.0, result.getDestinationIpSimilarity());
-        assertEquals(0.0, result.getDestinationPortSimilarity());
-        assertEquals(0.0, result.getLoginBehaviorSimilarity());
+        assertEquals(0.0, result.getCommandSimilarity().similarity());
+        assertEquals(2.0 / 3.0, result.getEventSimilarity().similarity());
+        assertEquals(0.0, result.getFileHashSimilarity().similarity());
+        assertEquals(0.0, result.getHasshSimilarity().similarity());
+        assertEquals(0.0, result.getClientVersionSimilarity().similarity());
+        assertEquals(0.0, result.getDownloadUrlSimilarity().similarity());
+        assertEquals(0.0, result.getDestinationIpSimilarity().similarity());
+        assertEquals(0.0, result.getDestinationPortSimilarity().similarity());
+        assertEquals(0.0, result.getLoginBehaviorSimilarity().similarity());
 
         assertEquals(300, result.getTemporalDistanceSeconds());
     }
@@ -199,36 +199,36 @@ class SessionSimilarityServiceTest {
 
         assertEquals(
                 1.0 / 3.0,
-                result.getCommandSimilarity()
+                result.getCommandSimilarity().similarity()
         );
 
         assertEquals(
                 2.0 / 4.0,
-                result.getEventSimilarity()
+                result.getEventSimilarity().similarity()
         );
 
         assertEquals(
                 1.0 / 3.0,
-                result.getFileHashSimilarity()
+                result.getFileHashSimilarity().similarity()
         );
 
-        assertEquals(1.0, result.getHasshSimilarity());
+        assertEquals(1.0, result.getHasshSimilarity().similarity());
 
-        assertEquals(0.0, result.getClientVersionSimilarity());
+        assertEquals(0.0, result.getClientVersionSimilarity().similarity());
 
-        assertEquals(1.0, result.getDownloadUrlSimilarity());
+        assertEquals(1.0, result.getDownloadUrlSimilarity().similarity());
 
         assertEquals(
                 1.0 / 2.0,
-                result.getDestinationIpSimilarity()
+                result.getDestinationIpSimilarity().similarity()
         );
 
         assertEquals(
                 1.0 / 2.0,
-                result.getDestinationPortSimilarity()
+                result.getDestinationPortSimilarity().similarity()
         );
 
-        assertEquals(1.0, result.getLoginBehaviorSimilarity());
+        assertEquals(1.0, result.getLoginBehaviorSimilarity().similarity());
 
         assertEquals(60, result.getTemporalDistanceSeconds());
     }

@@ -137,7 +137,7 @@ public class CandidateSimilarityAnalyzer {
             if (hasExactNonEmptySequence(
                     first.commandSequence(),
                     second.commandSequence(),
-                    result.getCommandSimilarity()
+                    result.getCommandSimilarity().similarity()
             )) {
                 exactCommandMatches++;
             }
@@ -145,7 +145,7 @@ public class CandidateSimilarityAnalyzer {
             if (hasExactNonEmptySequence(
                     first.eventSequence(),
                     second.eventSequence(),
-                    result.getEventSimilarity()
+                    result.getEventSimilarity().similarity()
             )) {
                 exactEventMatches++;
             }
@@ -153,7 +153,7 @@ public class CandidateSimilarityAnalyzer {
             if (hasExactNonEmptySet(
                     first.fileHashes(),
                     second.fileHashes(),
-                    result.getFileHashSimilarity()
+                    result.getFileHashSimilarity().similarity()
             )) {
                 exactFileHashMatches++;
             }
@@ -161,7 +161,7 @@ public class CandidateSimilarityAnalyzer {
             if (hasExactString(
                     first.hassh(),
                     second.hassh(),
-                    result.getHasshSimilarity()
+                    result.getHasshSimilarity().similarity()
             )) {
                 exactHasshMatches++;
             }
@@ -169,7 +169,7 @@ public class CandidateSimilarityAnalyzer {
             if (hasExactString(
                     first.clientVersion(),
                     second.clientVersion(),
-                    result.getClientVersionSimilarity()
+                    result.getClientVersionSimilarity().similarity()
             )) {
                 exactClientVersionMatches++;
             }
@@ -177,7 +177,7 @@ public class CandidateSimilarityAnalyzer {
             if (hasExactNonEmptySet(
                     first.downloadUrls(),
                     second.downloadUrls(),
-                    result.getDownloadUrlSimilarity()
+                    result.getDownloadUrlSimilarity().similarity()
             )) {
                 exactDownloadUrlMatches++;
             }
@@ -185,7 +185,7 @@ public class CandidateSimilarityAnalyzer {
             if (hasExactNonEmptySet(
                     first.destinationIps(),
                     second.destinationIps(),
-                    result.getDestinationIpSimilarity()
+                    result.getDestinationIpSimilarity().similarity()
             )) {
                 exactDestinationIpMatches++;
             }
@@ -193,7 +193,7 @@ public class CandidateSimilarityAnalyzer {
             if (hasExactNonEmptySet(
                     toStringList(first.destinationPorts()),
                     toStringList(second.destinationPorts()),
-                    result.getDestinationPortSimilarity()
+                    result.getDestinationPortSimilarity().similarity()
             )) {
                 exactDestinationPortMatches++;
             }
@@ -203,7 +203,7 @@ public class CandidateSimilarityAnalyzer {
             if (hasExactNonEmptySequence(
                     first.commandSequence(),
                     second.commandSequence(),
-                    result.getCommandSimilarity()
+                    result.getCommandSimilarity().similarity()
             )) {
                 coreMatches++;
             }
@@ -211,7 +211,7 @@ public class CandidateSimilarityAnalyzer {
             if (hasExactNonEmptySequence(
                     first.eventSequence(),
                     second.eventSequence(),
-                    result.getEventSimilarity()
+                    result.getEventSimilarity().similarity()
             )) {
                 coreMatches++;
             }
@@ -219,7 +219,7 @@ public class CandidateSimilarityAnalyzer {
             if (hasExactNonEmptySet(
                     first.fileHashes(),
                     second.fileHashes(),
-                    result.getFileHashSimilarity()
+                    result.getFileHashSimilarity().similarity()
             )) {
                 coreMatches++;
             }

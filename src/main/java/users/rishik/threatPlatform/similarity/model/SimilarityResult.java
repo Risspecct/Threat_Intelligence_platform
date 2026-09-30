@@ -9,23 +9,23 @@ import java.util.List;
 @AllArgsConstructor
 public class SimilarityResult {
 
-    private final double commandSimilarity;
+    private final FeatureSimilarity commandSimilarity;
 
-    private final double eventSimilarity;
+    private final FeatureSimilarity eventSimilarity;
 
-    private final double fileHashSimilarity;
+    private final FeatureSimilarity fileHashSimilarity;
 
-    private final double hasshSimilarity;
+    private final FeatureSimilarity hasshSimilarity;
 
-    private final double clientVersionSimilarity;
+    private final FeatureSimilarity clientVersionSimilarity;
 
-    private final double downloadUrlSimilarity;
+    private final FeatureSimilarity downloadUrlSimilarity;
 
-    private final double destinationIpSimilarity;
+    private final FeatureSimilarity destinationIpSimilarity;
 
-    private final double destinationPortSimilarity;
+    private final FeatureSimilarity destinationPortSimilarity;
 
-    private final double loginBehaviorSimilarity;
+    private final FeatureSimilarity loginBehaviorSimilarity;
 
     private final long temporalDistanceSeconds;
 
