@@ -15,6 +15,7 @@ import users.rishik.threatPlatform.similarity.calculator.SetSimilarityCalculator
 import users.rishik.threatPlatform.similarity.model.SimilarityResult;
 import users.rishik.threatPlatform.similarity.model.FeatureSimilarity;
 import users.rishik.threatPlatform.similarity.service.SessionSimilarityService;
+import users.rishik.threatPlatform.attack.candidate.CandidateSignal;
 
 import java.time.LocalDateTime;
 import java.util.EnumSet;
@@ -93,13 +94,13 @@ class CandidateSimilarityDistributionAnalyzerTest {
     void shouldKeepExactCandidateSignalCombinationsSeparate() {
         assertEquals("COMMAND + FILE_HASH + HASSH",
                 CandidateSimilarityDistributionAnalyzer.combinationName(
-                        EnumSet.of(CandidatePairGenerator.Signal.COMMAND,
-                                CandidatePairGenerator.Signal.FILE_HASH,
-                                CandidatePairGenerator.Signal.HASSH)));
+                        EnumSet.of(CandidateSignal.COMMAND,
+                                CandidateSignal.FILE_HASH,
+                                CandidateSignal.HASSH)));
         assertEquals("COMMAND + FILE_HASH",
                 CandidateSimilarityDistributionAnalyzer.combinationName(
-                        EnumSet.of(CandidatePairGenerator.Signal.COMMAND,
-                                CandidatePairGenerator.Signal.FILE_HASH)));
+                        EnumSet.of(CandidateSignal.COMMAND,
+                                CandidateSignal.FILE_HASH)));
     }
 
     @Test

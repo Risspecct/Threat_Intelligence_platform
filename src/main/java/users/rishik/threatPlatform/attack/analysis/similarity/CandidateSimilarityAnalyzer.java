@@ -1,42 +1,37 @@
 package users.rishik.threatPlatform.attack.analysis.similarity;
 
-import users.rishik.threatPlatform.attack.candidate.CandidateGenerationRules;
-import users.rishik.threatPlatform.attack.candidate.FeatureFrequencyFilter;
+import users.rishik.threatPlatform.attack.candidate.CandidatePairGenerationResult;
+import users.rishik.threatPlatform.attack.candidate.CandidatePairGenerator;
 import users.rishik.threatPlatform.attack.dto.SessionBehavior;
 import users.rishik.threatPlatform.attack.service.RawCowrieEventReader;
 import users.rishik.threatPlatform.attack.service.SessionBehaviorExtractor;
 import users.rishik.threatPlatform.attack.service.SessionEventProcessor;
 import users.rishik.threatPlatform.similarity.model.SimilarityResult;
 import users.rishik.threatPlatform.similarity.service.SessionSimilarityService;
+import users.rishik.threatPlatform.attack.candidate.CandidatePair;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class CandidateSimilarityAnalyzer {
 
     private final RawCowrieEventReader reader;
     private final SessionBehaviorExtractor extractor;
-    private final CandidateGenerationRules rules;
+    private final CandidatePairGenerator candidatePairGenerator;
     private final SessionSimilarityService similarityService;
 
     public CandidateSimilarityAnalyzer(
             RawCowrieEventReader reader,
             SessionBehaviorExtractor extractor,
-            CandidateGenerationRules rules,
+            CandidatePairGenerator candidatePairGenerator,
             SessionSimilarityService similarityService
     ) {
         this.reader = reader;
         this.extractor = extractor;
-        this.rules = rules;
+        this.candidatePairGenerator = candidatePairGenerator;
         this.similarityService = similarityService;
     }
 
@@ -66,45 +61,11 @@ public class CandidateSimilarityAnalyzer {
             List<SessionBehavior> sessions
     ) {
 
-        Map<SessionPair, EnumSet<Signal>> candidatePairs =
-                new HashMap<>();
+        CandidatePairGenerationResult candidateResult =
+                candidatePairGenerator.generate(sessions);
 
-        addSignalPairs(
-                sessions,
-                SessionBehavior::fileHashes,
-                Signal.FILE_HASH,
-                candidatePairs
-        );
-
-        addSignalPairs(
-                sessions,
-                SessionBehavior::downloadUrls,
-                Signal.DOWNLOAD_URL,
-                candidatePairs
-        );
-
-        addSignalPairs(
-                sessions,
-                SessionBehavior::commandSequence,
-                Signal.COMMAND,
-                candidatePairs
-        );
-
-        addSignalPairs(
-                sessions,
-                session -> {
-
-                    String hassh = session.hassh();
-
-                    if (hassh == null || hassh.isBlank()) {
-                        return List.of();
-                    }
-
-                    return List.of(hassh);
-                },
-                Signal.HASSH,
-                candidatePairs
-        );
+        var candidatePairs =
+                candidateResult.pairSignals();
 
         long exactCommandMatches = 0;
         long exactEventMatches = 0;
@@ -122,7 +83,8 @@ public class CandidateSimilarityAnalyzer {
 
         long maximumTemporalDistanceSeconds = 0;
 
-        for (SessionPair pair : candidatePairs.keySet()) {
+        for (CandidatePair pair :
+                candidatePairs.keySet()) {
 
             SessionBehavior first =
                     sessions.get(pair.first());
@@ -282,13 +244,13 @@ public class CandidateSimilarityAnalyzer {
     }
 
     private boolean hasExactNonEmptySet(
-            Collection<String> first,
-            Collection<String> second,
+            Iterable<String> first,
+            Iterable<String> second,
             double similarity
     ) {
 
-        return !first.isEmpty()
-                && !second.isEmpty()
+        return first.iterator().hasNext()
+                && second.iterator().hasNext()
                 && similarity == 1.0;
     }
 
@@ -313,102 +275,5 @@ public class CandidateSimilarityAnalyzer {
                 .filter(Objects::nonNull)
                 .map(String::valueOf)
                 .toList();
-    }
-
-    private void addSignalPairs(
-            List<SessionBehavior> sessions,
-            Function<SessionBehavior, Collection<String>> featureExtractor,
-            Signal signal,
-            Map<SessionPair, EnumSet<Signal>> pairSignals
-    ) {
-
-        Map<String, Long> frequencies =
-                sessions.stream()
-                        .flatMap(session ->
-                                featureExtractor.apply(session)
-                                        .stream()
-                                        .filter(Objects::nonNull)
-                                        .filter(value -> !value.isBlank())
-                                        .distinct()
-                        )
-                        .collect(Collectors.groupingBy(
-                                Function.identity(),
-                                Collectors.counting()
-                        ));
-
-        Map<String, Long> eligible =
-                FeatureFrequencyFilter.filter(
-                        frequencies,
-                        rules.maxFeatureFrequency()
-                );
-
-        Map<String, List<Integer>> sessionsByValue =
-                new HashMap<>();
-
-        for (int i = 0; i < sessions.size(); i++) {
-
-            SessionBehavior session =
-                    sessions.get(i);
-
-            int finalI = i;
-            featureExtractor.apply(session)
-                    .stream()
-                    .filter(Objects::nonNull)
-                    .filter(value -> !value.isBlank())
-                    .distinct()
-                    .filter(eligible::containsKey)
-                    .forEach(value ->
-                            sessionsByValue
-                                    .computeIfAbsent(
-                                            value,
-                                            ignored ->
-                                                    new ArrayList<>()
-                                    )
-                                    .add(finalI)
-                    );
-        }
-
-        for (List<Integer> indexes :
-                sessionsByValue.values()) {
-
-            for (int i = 0;
-                 i < indexes.size();
-                 i++) {
-
-                for (int j = i + 1;
-                     j < indexes.size();
-                     j++) {
-
-                    SessionPair pair =
-                            new SessionPair(
-                                    indexes.get(i),
-                                    indexes.get(j)
-                            );
-
-                    pairSignals
-                            .computeIfAbsent(
-                                    pair,
-                                    ignored ->
-                                            EnumSet.noneOf(
-                                                    Signal.class
-                                            )
-                            )
-                            .add(signal);
-                }
-            }
-        }
-    }
-
-    private enum Signal {
-        FILE_HASH,
-        DOWNLOAD_URL,
-        COMMAND,
-        HASSH
-    }
-
-    private record SessionPair(
-            int first,
-            int second
-    ) {
     }
 }

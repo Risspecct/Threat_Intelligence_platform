@@ -5,6 +5,8 @@ import users.rishik.threatPlatform.attack.candidate.CandidatePairGenerator;
 import users.rishik.threatPlatform.attack.dto.SessionBehavior;
 import users.rishik.threatPlatform.similarity.model.SimilarityResult;
 import users.rishik.threatPlatform.similarity.service.SessionSimilarityService;
+import users.rishik.threatPlatform.attack.candidate.CandidatePair;
+import users.rishik.threatPlatform.attack.candidate.CandidateSignal;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,9 +31,8 @@ public class CandidateSimilarityDistributionAnalyzer {
     ) {
         Map<String, List<SimilarityResult>> resultsByCombination = new TreeMap<>();
 
-        for (Map.Entry<CandidatePairGenerator.SessionPair,
-                EnumSet<CandidatePairGenerator.Signal>> entry : candidatePairs.pairSignals().entrySet()) {
-            CandidatePairGenerator.SessionPair pair = entry.getKey();
+        for (Map.Entry<CandidatePair, EnumSet<CandidateSignal>> entry : candidatePairs.pairSignals().entrySet()) {
+            CandidatePair pair = entry.getKey();
             SimilarityResult result = similarityService.compare(
                     sessions.get(pair.first()), sessions.get(pair.second()));
             resultsByCombination.computeIfAbsent(combinationName(entry.getValue()),
@@ -73,7 +74,7 @@ public class CandidateSimilarityDistributionAnalyzer {
                 sorted.getLast());
     }
 
-    public static String combinationName(EnumSet<CandidatePairGenerator.Signal> signals) {
+    public static String combinationName(EnumSet<CandidateSignal> signals) {
         return signals.stream().map(Enum::name)
                 .sorted(Comparator.comparingInt(CandidateSimilarityDistributionAnalyzer::signalOrder))
                 .reduce((first, second) -> first + " + " + second).orElse("NONE");
@@ -88,7 +89,7 @@ public class CandidateSimilarityDistributionAnalyzer {
     }
 
     private static int signalOrder(String signal) {
-        return switch (CandidatePairGenerator.Signal.valueOf(signal)) {
+        return switch (CandidateSignal.valueOf(signal)) {
             case COMMAND -> 0;
             case DOWNLOAD_URL -> 1;
             case FILE_HASH -> 2;

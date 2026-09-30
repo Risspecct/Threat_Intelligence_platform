@@ -674,12 +674,15 @@ public class DatasetImportRunner implements ApplicationRunner {
         SessionBehaviorExtractor extractor =
                 new SessionBehaviorExtractor();
 
+        CandidatePairGenerator candidatePairGenerator =
+                new CandidatePairGenerator(rules);
+
         return new CandidateSimilarityAnalyzer(
-                        reader,
-                        extractor,
-                        rules,
-                        sessionSimilarityService
-                );
+                reader,
+                extractor,
+                candidatePairGenerator,
+                sessionSimilarityService
+        );
     }
 
     private void runCandidateInspection(

@@ -8,6 +8,8 @@ import users.rishik.threatPlatform.attack.service.SessionBehaviorExtractor;
 import users.rishik.threatPlatform.attack.service.SessionEventProcessor;
 import users.rishik.threatPlatform.similarity.model.SimilarityResult;
 import users.rishik.threatPlatform.similarity.service.SessionSimilarityService;
+import users.rishik.threatPlatform.attack.candidate.CandidatePair;
+import users.rishik.threatPlatform.attack.candidate.CandidateSignal;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -43,14 +45,14 @@ public class CandidatePairInspector {
         CandidatePairGenerationResult result =
                 candidatePairGenerator.generate(sessions);
 
-        Map<CandidatePairGenerator.SessionPair,
-                EnumSet<CandidatePairGenerator.Signal>> pairSignals =
+        Map<CandidatePair,
+                EnumSet<CandidateSignal>> pairSignals =
                 result.pairSignals();
 
         inspectCombination(
                 "HASSH",
                 EnumSet.of(
-                        CandidatePairGenerator.Signal.HASSH
+                        CandidateSignal.HASSH
                 ),
                 pairSignals,
                 sessions
@@ -59,8 +61,8 @@ public class CandidatePairInspector {
         inspectCombination(
                 "COMMAND + FILE_HASH",
                 EnumSet.of(
-                        CandidatePairGenerator.Signal.COMMAND,
-                        CandidatePairGenerator.Signal.FILE_HASH
+                        CandidateSignal.COMMAND,
+                        CandidateSignal.FILE_HASH
                 ),
                 pairSignals,
                 sessions
@@ -69,9 +71,9 @@ public class CandidatePairInspector {
         inspectCombination(
                 "COMMAND + FILE_HASH + HASSH",
                 EnumSet.of(
-                        CandidatePairGenerator.Signal.COMMAND,
-                        CandidatePairGenerator.Signal.FILE_HASH,
-                        CandidatePairGenerator.Signal.HASSH
+                        CandidateSignal.COMMAND,
+                        CandidateSignal.FILE_HASH,
+                        CandidateSignal.HASSH
                 ),
                 pairSignals,
                 sessions
@@ -80,9 +82,9 @@ public class CandidatePairInspector {
         inspectCombination(
                 "COMMAND + DOWNLOAD_URL + FILE_HASH",
                 EnumSet.of(
-                        CandidatePairGenerator.Signal.COMMAND,
-                        CandidatePairGenerator.Signal.DOWNLOAD_URL,
-                        CandidatePairGenerator.Signal.FILE_HASH
+                        CandidateSignal.COMMAND,
+                        CandidateSignal.DOWNLOAD_URL,
+                        CandidateSignal.FILE_HASH
                 ),
                 pairSignals,
                 sessions
@@ -115,16 +117,16 @@ public class CandidatePairInspector {
 
     private void inspectCombination(
             String name,
-            EnumSet<CandidatePairGenerator.Signal> requiredSignals,
-            Map<CandidatePairGenerator.SessionPair,
-                    EnumSet<CandidatePairGenerator.Signal>> pairSignals,
+            EnumSet<CandidateSignal> requiredSignals,
+            Map<CandidatePair,
+                    EnumSet<CandidateSignal>> pairSignals,
             List<SessionBehavior> sessions
     ) {
 
         Optional<
                 Map.Entry<
-                        CandidatePairGenerator.SessionPair,
-                        EnumSet<CandidatePairGenerator.Signal>
+                        CandidatePair,
+                        EnumSet<CandidateSignal>
                         >
                 > match =
                 pairSignals.entrySet()
@@ -148,7 +150,7 @@ public class CandidatePairInspector {
             return;
         }
 
-        CandidatePairGenerator.SessionPair pair =
+        CandidatePair pair =
                 match.get().getKey();
 
         SessionBehavior first =

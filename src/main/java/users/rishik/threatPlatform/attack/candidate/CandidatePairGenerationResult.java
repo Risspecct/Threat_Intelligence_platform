@@ -4,8 +4,7 @@ import java.util.EnumSet;
 import java.util.Map;
 
 public record CandidatePairGenerationResult(
-        Map<CandidatePairGenerator.SessionPair,
-                        EnumSet<CandidatePairGenerator.Signal>> pairSignals,
+        Map<CandidatePair, EnumSet<CandidateSignal>> pairSignals,
         long totalPairsBeforeDeduplication
 ) {
 }

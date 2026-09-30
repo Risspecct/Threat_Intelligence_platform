@@ -17,7 +17,7 @@ public class CandidatePairGenerator {
             List<SessionBehavior> sessions
     ) {
 
-        Map<SessionPair, EnumSet<Signal>> pairSignals =
+        Map<CandidatePair, EnumSet<CandidateSignal>> pairSignals =
                 new HashMap<>();
 
         long totalPairsBeforeDeduplication = 0;
@@ -25,21 +25,21 @@ public class CandidatePairGenerator {
         totalPairsBeforeDeduplication += addSignalPairs(
                 sessions,
                 SessionBehavior::fileHashes,
-                Signal.FILE_HASH,
+                CandidateSignal.FILE_HASH,
                 pairSignals
         );
 
         totalPairsBeforeDeduplication += addSignalPairs(
                 sessions,
                 SessionBehavior::downloadUrls,
-                Signal.DOWNLOAD_URL,
+                CandidateSignal.DOWNLOAD_URL,
                 pairSignals
         );
 
         totalPairsBeforeDeduplication += addSignalPairs(
                 sessions,
                 SessionBehavior::commandSequence,
-                Signal.COMMAND,
+                CandidateSignal.COMMAND,
                 pairSignals
         );
 
@@ -48,7 +48,7 @@ public class CandidatePairGenerator {
                 session -> session.hassh() == null
                         ? Set.of()
                         : Set.of(session.hassh()),
-                Signal.HASSH,
+                CandidateSignal.HASSH,
                 pairSignals
         );
 
@@ -61,8 +61,8 @@ public class CandidatePairGenerator {
     private <T> long addSignalPairs(
             List<SessionBehavior> sessions,
             Function<SessionBehavior, Collection<T>> featureExtractor,
-            Signal signal,
-            Map<SessionPair, EnumSet<Signal>> pairSignals
+            CandidateSignal signal,
+            Map<CandidatePair, EnumSet<CandidateSignal>> pairSignals
     ) {
 
         Map<T, List<Integer>> sessionsByFeature =
@@ -81,6 +81,7 @@ public class CandidatePairGenerator {
                     new HashSet<>(features);
 
             for (T feature : distinctFeatures) {
+
                 if (feature == null) {
                     continue;
                 }
@@ -121,8 +122,8 @@ public class CandidatePairGenerator {
                      j < sessionIndexes.size();
                      j++) {
 
-                    SessionPair pair =
-                            new SessionPair(
+                    CandidatePair pair =
+                            new CandidatePair(
                                     sessionIndexes.get(i),
                                     sessionIndexes.get(j)
                             );
@@ -132,7 +133,7 @@ public class CandidatePairGenerator {
                                     pair,
                                     ignored ->
                                             EnumSet.noneOf(
-                                                    Signal.class
+                                                    CandidateSignal.class
                                             )
                             )
                             .add(signal);
@@ -141,24 +142,5 @@ public class CandidatePairGenerator {
         }
 
         return pairCount;
-    }
-
-    public enum Signal {
-        FILE_HASH,
-        DOWNLOAD_URL,
-        COMMAND,
-        HASSH
-    }
-
-    public record SessionPair(int first, int second) {
-
-        public SessionPair {
-
-            if (first > second) {
-                throw new IllegalArgumentException(
-                        "Session pair indexes must be ordered"
-                );
-            }
-        }
     }
 }

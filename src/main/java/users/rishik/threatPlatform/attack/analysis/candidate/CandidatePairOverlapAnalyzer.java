@@ -6,6 +6,8 @@ import users.rishik.threatPlatform.attack.dto.SessionBehavior;
 import users.rishik.threatPlatform.attack.service.RawCowrieEventReader;
 import users.rishik.threatPlatform.attack.service.SessionBehaviorExtractor;
 import users.rishik.threatPlatform.attack.service.SessionEventProcessor;
+import users.rishik.threatPlatform.attack.candidate.CandidatePair;
+import users.rishik.threatPlatform.attack.candidate.CandidateSignal;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -61,8 +63,7 @@ public class CandidatePairOverlapAnalyzer {
         CandidatePairGenerationResult result =
                 candidatePairGenerator.generate(sessions);
 
-        Map<CandidatePairGenerator.SessionPair,
-                EnumSet<CandidatePairGenerator.Signal>> pairSignals =
+        Map<CandidatePair, EnumSet<CandidateSignal>> pairSignals =
                 result.pairSignals();
 
         long totalPairsBeforeDeduplication =
@@ -124,7 +125,7 @@ public class CandidatePairOverlapAnalyzer {
     }
 
     private String combinationKey(
-            EnumSet<CandidatePairGenerator.Signal> signals
+            EnumSet<CandidateSignal> signals
     ) {
 
         return signals.stream()

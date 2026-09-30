@@ -1,9 +1,16 @@
 package users.rishik.threatPlatform.attack.candidate;
 
-import java.util.Set;
-
 public record CandidatePair(
-        String sessionIdA,
-        String sessionIdB,
-        Set<CandidateSignal> signals
-) {}
+        int first,
+        int second
+) {
+
+    public CandidatePair {
+
+        if (first > second) {
+            throw new IllegalArgumentException(
+                    "Candidate pair indexes must be ordered"
+            );
+        }
+    }
+}
