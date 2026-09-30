@@ -4,19 +4,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
-import users.rishik.threatPlatform.attack.analysis.FeatureDistributionAnalyzer;
-import users.rishik.threatPlatform.attack.analysis.FeatureDistributionReport;
+import users.rishik.threatPlatform.attack.analysis.*;
 import users.rishik.threatPlatform.attack.service.RawCowrieEventReader;
 import users.rishik.threatPlatform.attack.service.SessionBehaviorExtractor;
 import users.rishik.threatPlatform.attack.service.SessionFileReader;
-import users.rishik.threatPlatform.attack.analysis.CandidateGenerationAnalyzer;
-import users.rishik.threatPlatform.attack.analysis.CandidateGenerationReport;
-import users.rishik.threatPlatform.attack.analysis.CandidateGenerationRules;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -38,6 +35,11 @@ public class DatasetImportRunner implements ApplicationRunner {
 
         if (args.containsOption("candidate-analysis")) {
             runCandidateAnalysis(args);
+            return;
+        }
+
+        if (args.containsOption("candidate-overlap-analysis")) {
+            runCandidateOverlapAnalysis(args);
             return;
         }
     }
@@ -345,6 +347,117 @@ public class DatasetImportRunner implements ApplicationRunner {
         );
 
         System.out.println();
+        System.out.printf(
+                "Analysis time: %.2f seconds%n",
+                elapsed / 1000.0
+        );
+
+        System.out.println("========================================");
+    }
+
+    private void runCandidateOverlapAnalysis(
+            ApplicationArguments args
+    ) throws Exception {
+
+        Path path = getDatasetPath(
+                args,
+                "Candidate overlap analysis requires --file=<path>"
+        );
+
+        System.out.println();
+        System.out.println("========================================");
+        System.out.println("       Candidate Overlap Analysis");
+        System.out.println("========================================");
+        System.out.println("Input: " + path);
+
+        CandidateGenerationRules rules =
+                CandidateGenerationRules.defaults();
+
+        RawCowrieEventReader reader =
+                new RawCowrieEventReader(new ObjectMapper());
+
+        SessionBehaviorExtractor extractor =
+                new SessionBehaviorExtractor();
+
+        CandidatePairOverlapAnalyzer analyzer =
+                new CandidatePairOverlapAnalyzer(
+                        reader,
+                        extractor,
+                        rules
+                );
+
+        long start = System.currentTimeMillis();
+
+        CandidatePairOverlapReport report =
+                analyzer.analyze(path);
+
+        long elapsed =
+                System.currentTimeMillis() - start;
+
+        System.out.println();
+        System.out.println(
+                "Sessions analyzed: "
+                        + report.sessionsAnalyzed()
+        );
+
+        System.out.println();
+        System.out.println("Candidate pairs:");
+
+        System.out.println(
+                "  Before deduplication: "
+                        + report.totalCandidatePairsBeforeDeduplication()
+        );
+
+        System.out.println(
+                "  After deduplication: "
+                        + report.uniqueCandidatePairs()
+        );
+
+        System.out.println();
+        System.out.println("Evidence count:");
+
+        System.out.println(
+                "  1 signal: "
+                        + report.singleSignalPairs()
+        );
+
+        System.out.println(
+                "  2 signals: "
+                        + report.twoSignalPairs()
+        );
+
+        System.out.println(
+                "  3 signals: "
+                        + report.threeSignalPairs()
+        );
+
+        System.out.println(
+                "  4 signals: "
+                        + report.fourSignalPairs()
+        );
+
+        System.out.println();
+        System.out.println("Signal combinations:");
+
+        report.signalCombinationCounts()
+                .entrySet()
+                .stream()
+                .sorted(
+                        Map.Entry.<String, Long>
+                                        comparingByValue()
+                                .reversed()
+                )
+                .forEach(entry ->
+                        System.out.println(
+                                "  "
+                                        + entry.getKey()
+                                        + ": "
+                                        + entry.getValue()
+                        )
+                );
+
+        System.out.println();
+
         System.out.printf(
                 "Analysis time: %.2f seconds%n",
                 elapsed / 1000.0
