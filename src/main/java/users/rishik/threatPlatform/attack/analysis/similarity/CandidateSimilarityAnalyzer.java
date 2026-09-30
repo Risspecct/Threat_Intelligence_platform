@@ -83,6 +83,8 @@ public class CandidateSimilarityAnalyzer {
 
         long maximumTemporalDistanceSeconds = 0;
 
+        List<SimilarityResult> similarities = new ArrayList<>(candidatePairs.size());
+
         for (CandidatePair pair :
                 candidatePairs.keySet()) {
 
@@ -97,6 +99,8 @@ public class CandidateSimilarityAnalyzer {
                             first,
                             second
                     );
+
+            similarities.add(result);
 
             if (hasExactNonEmptySequence(
                     first.commandSequence(),
@@ -228,7 +232,9 @@ public class CandidateSimilarityAnalyzer {
                 multipleCoreBehavioralMatches,
 
                 minimumTemporalDistanceSeconds,
-                maximumTemporalDistanceSeconds
+                maximumTemporalDistanceSeconds,
+
+                similarities
         );
     }
 
