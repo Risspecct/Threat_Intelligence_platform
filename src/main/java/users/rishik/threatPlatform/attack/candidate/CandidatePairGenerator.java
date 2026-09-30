@@ -1,4 +1,4 @@
-package users.rishik.threatPlatform.attack.analysis;
+package users.rishik.threatPlatform.attack.candidate;
 
 import users.rishik.threatPlatform.attack.dto.SessionBehavior;
 

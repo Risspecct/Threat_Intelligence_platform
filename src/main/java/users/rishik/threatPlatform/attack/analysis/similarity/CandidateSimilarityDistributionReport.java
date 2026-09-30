@@ -1,4 +1,4 @@
-package users.rishik.threatPlatform.attack.analysis;
+package users.rishik.threatPlatform.attack.analysis.similarity;
 
 import java.util.Map;
 

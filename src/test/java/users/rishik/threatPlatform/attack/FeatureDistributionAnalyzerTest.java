@@ -2,8 +2,8 @@ package users.rishik.threatPlatform.attack;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import users.rishik.threatPlatform.attack.analysis.FeatureDistributionAnalyzer;
-import users.rishik.threatPlatform.attack.analysis.FeatureDistributionReport;
+import users.rishik.threatPlatform.attack.analysis.feature.FeatureDistributionAnalyzer;
+import users.rishik.threatPlatform.attack.analysis.feature.FeatureDistributionReport;
 import users.rishik.threatPlatform.attack.service.RawCowrieEventReader;
 import users.rishik.threatPlatform.attack.service.SessionBehaviorExtractor;
 

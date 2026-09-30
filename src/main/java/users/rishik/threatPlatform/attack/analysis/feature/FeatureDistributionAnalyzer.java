@@ -1,4 +1,4 @@
-package users.rishik.threatPlatform.attack.analysis;
+package users.rishik.threatPlatform.attack.analysis.feature;
 
 import users.rishik.threatPlatform.attack.dto.SessionBehavior;
 import users.rishik.threatPlatform.attack.service.RawCowrieEventReader;

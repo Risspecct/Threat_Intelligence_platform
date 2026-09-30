@@ -2,10 +2,10 @@ package users.rishik.threatPlatform.attack;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import users.rishik.threatPlatform.attack.analysis.CandidateGenerationRules;
-import users.rishik.threatPlatform.attack.analysis.CandidatePairGenerator;
-import users.rishik.threatPlatform.attack.analysis.CandidatePairOverlapAnalyzer;
-import users.rishik.threatPlatform.attack.analysis.CandidatePairOverlapReport;
+import users.rishik.threatPlatform.attack.analysis.candidate.CandidatePairOverlapAnalyzer;
+import users.rishik.threatPlatform.attack.analysis.candidate.CandidatePairOverlapReport;
+import users.rishik.threatPlatform.attack.candidate.CandidateGenerationRules;
+import users.rishik.threatPlatform.attack.candidate.CandidatePairGenerator;
 import users.rishik.threatPlatform.attack.dto.SessionBehavior;
 import users.rishik.threatPlatform.attack.service.RawCowrieEventReader;
 import users.rishik.threatPlatform.attack.service.SessionBehaviorExtractor;

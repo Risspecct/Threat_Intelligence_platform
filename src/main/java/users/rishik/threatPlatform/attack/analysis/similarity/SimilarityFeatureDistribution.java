@@ -1,6 +1,7 @@
-package users.rishik.threatPlatform.attack.analysis;
+package users.rishik.threatPlatform.attack.analysis.similarity;
 
-public record FeatureDistribution(
+/** Distribution statistics for every dimension returned by a session comparison. */
+public record SimilarityFeatureDistribution(
         SimilarityStatistics command,
         SimilarityStatistics event,
         SimilarityStatistics fileHash,
@@ -9,6 +10,7 @@ public record FeatureDistribution(
         SimilarityStatistics downloadUrl,
         SimilarityStatistics destinationIp,
         SimilarityStatistics destinationPort,
-        SimilarityStatistics loginBehavior
+        SimilarityStatistics loginBehavior,
+        SimilarityStatistics temporalDistanceSeconds
 ) {
 }

@@ -1,4 +1,4 @@
-package users.rishik.threatPlatform.attack.analysis;
+package users.rishik.threatPlatform.attack.candidate;
 
 public record CandidateGenerationRules(
         int maxFeatureFrequency

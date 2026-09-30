@@ -1,12 +1,12 @@
 package users.rishik.threatPlatform.attack;
 
 import org.junit.jupiter.api.Test;
-import users.rishik.threatPlatform.attack.analysis.CandidateGenerationRules;
-import users.rishik.threatPlatform.attack.analysis.CandidatePairGenerationResult;
-import users.rishik.threatPlatform.attack.analysis.CandidatePairGenerator;
-import users.rishik.threatPlatform.attack.analysis.CandidateSimilarityDistributionAnalyzer;
-import users.rishik.threatPlatform.attack.analysis.SimilarityFeatureDistribution;
-import users.rishik.threatPlatform.attack.analysis.SimilarityStatistics;
+import users.rishik.threatPlatform.attack.analysis.similarity.CandidateSimilarityDistributionAnalyzer;
+import users.rishik.threatPlatform.attack.analysis.similarity.SimilarityFeatureDistribution;
+import users.rishik.threatPlatform.attack.analysis.similarity.SimilarityStatistics;
+import users.rishik.threatPlatform.attack.candidate.CandidateGenerationRules;
+import users.rishik.threatPlatform.attack.candidate.CandidatePairGenerationResult;
+import users.rishik.threatPlatform.attack.candidate.CandidatePairGenerator;
 import users.rishik.threatPlatform.attack.dto.SessionBehavior;
 import users.rishik.threatPlatform.similarity.calculator.ExactMatchSimilarityCalculator;
 import users.rishik.threatPlatform.similarity.calculator.LoginBehaviorSimilarityCalculator;
@@ -19,7 +19,6 @@ import users.rishik.threatPlatform.similarity.service.SessionSimilarityService;
 import java.time.LocalDateTime;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

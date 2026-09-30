@@ -1,10 +1,17 @@
 package users.rishik.threatPlatform.attack.runner;
 
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
-import users.rishik.threatPlatform.attack.analysis.*;
+import users.rishik.threatPlatform.attack.analysis.candidate.*;
+import users.rishik.threatPlatform.attack.analysis.feature.FeatureDistributionAnalyzer;
+import users.rishik.threatPlatform.attack.analysis.feature.FeatureDistributionReport;
+import users.rishik.threatPlatform.attack.analysis.similarity.*;
+import users.rishik.threatPlatform.attack.candidate.CandidateGenerationRules;
+import users.rishik.threatPlatform.attack.candidate.CandidatePairGenerationResult;
+import users.rishik.threatPlatform.attack.candidate.CandidatePairGenerator;
 import users.rishik.threatPlatform.attack.service.RawCowrieEventReader;
 import users.rishik.threatPlatform.attack.service.SessionBehaviorExtractor;
 import users.rishik.threatPlatform.attack.service.SessionEventProcessor;
@@ -31,7 +38,6 @@ public class DatasetImportRunner implements ApplicationRunner {
 
         if (args.containsOption("import")) {
             runImport(args);
-            return;
         }
 
         if (args.containsOption("analyze")) {
@@ -40,27 +46,22 @@ public class DatasetImportRunner implements ApplicationRunner {
 
         if (args.containsOption("candidate-analysis")) {
             runCandidateAnalysis(args);
-            return;
         }
 
         if (args.containsOption("candidate-overlap-analysis")) {
             runCandidateOverlapAnalysis(args);
-            return;
         }
 
         if (args.containsOption("candidate-similarity-analysis")) {
             runCandidateSimilarityAnalysis(args);
-            return;
         }
 
         if (args.containsOption("candidate-similarity-distribution-analysis")) {
             runCandidateSimilarityDistributionAnalysis(args);
-            return;
         }
 
         if (args.containsOption("candidate-inspection")) {
             runCandidateInspection(args);
-            return;
         }
     }
 
@@ -564,22 +565,7 @@ public class DatasetImportRunner implements ApplicationRunner {
         System.out.println("========================================");
         System.out.println("Input: " + path);
 
-        CandidateGenerationRules rules =
-                CandidateGenerationRules.defaults();
-
-        RawCowrieEventReader reader =
-                new RawCowrieEventReader(new ObjectMapper());
-
-        SessionBehaviorExtractor extractor =
-                new SessionBehaviorExtractor();
-
-        CandidateSimilarityAnalyzer analyzer =
-                new CandidateSimilarityAnalyzer(
-                        reader,
-                        extractor,
-                        rules,
-                        sessionSimilarityService
-                );
+        CandidateSimilarityAnalyzer analyzer = getCandidateSimilarityAnalyzer();
 
         long start = System.currentTimeMillis();
 
@@ -676,6 +662,24 @@ public class DatasetImportRunner implements ApplicationRunner {
         );
 
         System.out.println("========================================");
+    }
+
+    private @NonNull CandidateSimilarityAnalyzer getCandidateSimilarityAnalyzer() {
+        CandidateGenerationRules rules =
+                CandidateGenerationRules.defaults();
+
+        RawCowrieEventReader reader =
+                new RawCowrieEventReader(new ObjectMapper());
+
+        SessionBehaviorExtractor extractor =
+                new SessionBehaviorExtractor();
+
+        return new CandidateSimilarityAnalyzer(
+                        reader,
+                        extractor,
+                        rules,
+                        sessionSimilarityService
+                );
     }
 
     private void runCandidateInspection(

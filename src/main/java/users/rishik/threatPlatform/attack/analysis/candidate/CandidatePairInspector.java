@@ -1,5 +1,7 @@
-package users.rishik.threatPlatform.attack.analysis;
+package users.rishik.threatPlatform.attack.analysis.candidate;
 
+import users.rishik.threatPlatform.attack.candidate.CandidatePairGenerationResult;
+import users.rishik.threatPlatform.attack.candidate.CandidatePairGenerator;
 import users.rishik.threatPlatform.attack.dto.SessionBehavior;
 import users.rishik.threatPlatform.attack.service.RawCowrieEventReader;
 import users.rishik.threatPlatform.attack.service.SessionBehaviorExtractor;

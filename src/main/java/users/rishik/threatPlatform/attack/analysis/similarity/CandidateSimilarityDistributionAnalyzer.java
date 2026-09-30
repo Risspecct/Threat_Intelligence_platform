@@ -1,5 +1,7 @@
-package users.rishik.threatPlatform.attack.analysis;
+package users.rishik.threatPlatform.attack.analysis.similarity;
 
+import users.rishik.threatPlatform.attack.candidate.CandidatePairGenerationResult;
+import users.rishik.threatPlatform.attack.candidate.CandidatePairGenerator;
 import users.rishik.threatPlatform.attack.dto.SessionBehavior;
 import users.rishik.threatPlatform.similarity.model.SimilarityResult;
 import users.rishik.threatPlatform.similarity.service.SessionSimilarityService;
