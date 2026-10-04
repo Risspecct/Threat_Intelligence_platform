@@ -1,5 +1,6 @@
 package users.rishik.threatPlatform.attack.service;
 
+import users.rishik.threatPlatform.attack.dto.RawCowrieEvent;
 import users.rishik.threatPlatform.attack.dto.ThreatObservation;
 import users.rishik.threatPlatform.attack.mapper.CowrieObservationMapper;
 
@@ -9,11 +10,11 @@ import java.util.function.Consumer;
 
 public class CowrieObservationProcessor {
 
-    private final RawCowrieEventReader eventReader;
+    private final JsonLineReader eventReader;
     private final CowrieObservationMapper mapper;
 
     public CowrieObservationProcessor(
-            RawCowrieEventReader eventReader,
+            JsonLineReader eventReader,
             CowrieObservationMapper mapper) {
 
         this.eventReader = eventReader;
@@ -26,7 +27,9 @@ public class CowrieObservationProcessor {
 
         eventReader.read(
                 file,
+                RawCowrieEvent.class,
                 event -> {
+
                     ThreatObservation observation =
                             mapper.map(event);
 

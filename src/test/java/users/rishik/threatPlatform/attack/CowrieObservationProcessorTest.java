@@ -7,7 +7,7 @@ import users.rishik.threatPlatform.attack.analysis.correlation.CorrelationServic
 import users.rishik.threatPlatform.attack.dto.ThreatObservation;
 import users.rishik.threatPlatform.attack.mapper.CowrieObservationMapper;
 import users.rishik.threatPlatform.attack.service.CowrieObservationProcessor;
-import users.rishik.threatPlatform.attack.service.RawCowrieEventReader;
+import users.rishik.threatPlatform.attack.service.JsonLineReader;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -36,7 +36,7 @@ class CowrieObservationProcessorTest {
 
         CowrieObservationProcessor processor =
                 new CowrieObservationProcessor(
-                        new RawCowrieEventReader(new ObjectMapper()),
+                        new JsonLineReader(new ObjectMapper()),
                         new CowrieObservationMapper()
                 );
 
@@ -86,7 +86,7 @@ class CowrieObservationProcessorTest {
 
         CowrieObservationProcessor processor =
                 new CowrieObservationProcessor(
-                        new RawCowrieEventReader(new ObjectMapper()),
+                        new JsonLineReader(new ObjectMapper()),
                         new CowrieObservationMapper()
                 );
 

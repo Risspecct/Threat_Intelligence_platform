@@ -2,7 +2,9 @@ package users.rishik.threatPlatform.attack;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import users.rishik.threatPlatform.attack.dto.RawCowrieEvent;
 import users.rishik.threatPlatform.attack.dto.SessionBehavior;
+import users.rishik.threatPlatform.attack.service.JsonLineReader;
 import users.rishik.threatPlatform.attack.service.RawCowrieEventReader;
 import users.rishik.threatPlatform.attack.service.SessionBehaviorExtractor;
 import users.rishik.threatPlatform.attack.service.SessionEventProcessor;
@@ -42,8 +44,8 @@ class RawCowriePipelineTest {
         try {
             Files.writeString(file, content);
 
-            RawCowrieEventReader reader =
-                    new RawCowrieEventReader(new ObjectMapper());
+            JsonLineReader reader =
+                    new JsonLineReader(new ObjectMapper());
 
             SessionEventProcessor processor =
                     new SessionEventProcessor(
@@ -63,6 +65,7 @@ class RawCowriePipelineTest {
 
             reader.read(
                     file,
+                    RawCowrieEvent.class,
                     event -> processor.accept(
                             event,
                             behaviors::add
