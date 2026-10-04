@@ -65,6 +65,7 @@ class ThreatObservationNormalizationTest {
 
         RawSentryPeerEvent sentryPeerEvent = new RawSentryPeerEvent(
                 "2025-06-27T10:15:30Z",
+                "2025-06-11T15:46:59.638Z",
                 "10.0.0.5",
                 5060,
                 "10.0.0.10",

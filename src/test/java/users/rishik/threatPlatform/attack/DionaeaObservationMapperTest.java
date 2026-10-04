@@ -14,13 +14,6 @@ class DionaeaObservationMapperTest {
     @Test
     void shouldMapDionaeaEventToThreatObservation() {
 
-        RawDionaeaEvent.Connection connection =
-                new RawDionaeaEvent.Connection(
-                        "httpd",
-                        "tcp",
-                        "accept"
-                );
-
         RawDionaeaEvent event = new RawDionaeaEvent(
                 "2025-06-11T15:40:46.327774",
                 "2025-06-11T15:40:46.327Z",
@@ -32,9 +25,9 @@ class DionaeaObservationMapperTest {
                 "user",
                 "password",
                 new RawDionaeaEvent.Connection(
+                        "httpd",
                         "tcp",
-                        "tcp",
-                        "httpd"
+                        "accept"
                 )
         );
 
@@ -50,22 +43,22 @@ class DionaeaObservationMapperTest {
         );
 
         assertEquals(
-                "2025-06-27T10:15:30Z",
+                "2025-06-11T15:40:46.327Z",
                 observation.getTimestamp().toString()
         );
 
-        assertEquals("10.0.0.5", observation.getSourceIp());
-        assertEquals(54321, observation.getSourcePort());
+        assertEquals("192.168.1.10", observation.getSourceIp());
+        assertEquals(51150, observation.getSourcePort());
 
-        assertEquals("10.0.0.10", observation.getDestinationIp());
-        assertEquals(80, observation.getDestinationPort());
+        assertEquals("10.0.0.1", observation.getDestinationIp());
+        assertEquals(81, observation.getDestinationPort());
 
         assertEquals("tcp", observation.getProtocol());
         assertEquals("httpd", observation.getService());
 
         assertEquals("Dionaea", observation.getActivityType());
 
-        assertEquals("admin", observation.getUsername());
+        assertEquals("user", observation.getUsername());
 
         assertNull(observation.getSessionId());
         assertNull(observation.getCommand());

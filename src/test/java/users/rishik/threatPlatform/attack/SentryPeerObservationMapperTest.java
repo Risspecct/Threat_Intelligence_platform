@@ -18,6 +18,7 @@ class SentryPeerObservationMapperTest {
 
         RawSentryPeerEvent event = new RawSentryPeerEvent(
                 "2025-06-27T10:15:30Z",
+                "2025-06-11T15:46:59.638Z",
                 "10.0.0.5",
                 5060,
                 "10.0.0.10",
@@ -38,7 +39,7 @@ class SentryPeerObservationMapperTest {
         assertEquals("event-123", observation.getObservationId());
         assertEquals(SourceType.SENTRY_PEER, observation.getSourceType());
         assertEquals(
-                Instant.parse("2025-06-27T10:15:30Z"),
+                Instant.parse("2025-06-11T15:46:59.638Z"),
                 observation.getTimestamp()
         );
 

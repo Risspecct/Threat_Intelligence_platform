@@ -5,8 +5,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record RawSentryPeerEvent(
-
         String timestamp,
+
+        @JsonProperty("@timestamp")
+        String eventTimestamp,
 
         @JsonProperty("src_ip")
         String srcIp,
@@ -36,6 +38,4 @@ public record RawSentryPeerEvent(
 
         @JsonProperty("event_uuid")
         String eventUuid
-
-) {
-}
+) {}
