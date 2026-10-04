@@ -8,6 +8,9 @@ public record RawDionaeaEvent(
 
         String timestamp,
 
+        @JsonProperty("@timestamp")
+        String eventTimestamp,
+
         @JsonProperty("src_ip")
         String srcIp,
 
@@ -27,7 +30,6 @@ public record RawDionaeaEvent(
         String password,
 
         Connection connection
-
 ) {
 
     @JsonIgnoreProperties(ignoreUnknown = true)

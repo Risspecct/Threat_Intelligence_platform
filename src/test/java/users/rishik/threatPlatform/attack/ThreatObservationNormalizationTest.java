@@ -48,6 +48,7 @@ class ThreatObservationNormalizationTest {
 
         RawDionaeaEvent dionaeaEvent = new RawDionaeaEvent(
                 "2025-06-27T10:15:30Z",
+                "2025-06-11T15:40:46.327Z",
                 "10.0.0.5",
                 54321,
                 "10.0.0.10",

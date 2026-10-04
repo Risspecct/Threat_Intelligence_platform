@@ -18,9 +18,9 @@ public class DionaeaObservationMapper {
 
         observation.setSourceType(SourceType.DIONAEA);
 
-        if (event.timestamp() != null) {
+        if (event.eventTimestamp() != null) {
             observation.setTimestamp(
-                    Instant.parse(event.timestamp())
+                    Instant.parse(event.eventTimestamp())
             );
         }
 

@@ -21,18 +21,22 @@ class DionaeaObservationMapperTest {
                         "accept"
                 );
 
-        RawDionaeaEvent event =
-                new RawDionaeaEvent(
-                        "2025-06-27T10:15:30Z",
-                        "10.0.0.5",
-                        54321,
-                        "10.0.0.10",
-                        80,
-                        "Dionaea",
-                        "admin",
-                        "password",
-                        connection
-                );
+        RawDionaeaEvent event = new RawDionaeaEvent(
+                "2025-06-11T15:40:46.327774",
+                "2025-06-11T15:40:46.327Z",
+                "192.168.1.10",
+                51150,
+                "10.0.0.1",
+                81,
+                "Dionaea",
+                "user",
+                "password",
+                new RawDionaeaEvent.Connection(
+                        "tcp",
+                        "tcp",
+                        "httpd"
+                )
+        );
 
         DionaeaObservationMapper mapper =
                 new DionaeaObservationMapper();
